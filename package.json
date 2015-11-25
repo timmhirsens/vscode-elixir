@@ -1,0 +1,36 @@
+{
+	"name": "vscode-elixir",
+	"displayName": "vscode-elixir",
+	"description": "Elixir support for VSCode",
+	"keywords": ["Elixir", "syntax"],
+	"version": "0.0.2",
+	"publisher": "mjmcloug",
+	"icon": "images/logo.png",
+	"engines": {
+		"vscode": "^0.10.1"
+	},
+	"categories": [
+		"Languages"
+	],
+	"contributes": {
+		"languages": [{
+			"id": "elixir",
+			"aliases": ["Elixir", "elixir"],
+			"extensions": [".ex",".exs"],
+			"configuration": "./src/elixir.configuration.json"
+		}],
+		"grammars": [{
+			"language": "elixir",
+			"scopeName": "source.elixir",
+			"path": "./src/syntaxes/elixir.tmLanguage"
+		}]
+	},
+	"scripts": {
+		"vscode:prepublish": "node ./node_modules/vscode/bin/compile",
+		"compile": "node ./node_modules/vscode/bin/compile -watch -p ./"
+	},
+	"devDependencies": {
+		"typescript": "^1.6.2",
+		"vscode": "0.10.x"
+	}
+}
