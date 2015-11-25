@@ -3,7 +3,7 @@
 	"displayName": "vscode-elixir",
 	"description": "Elixir support for VSCode",
 	"keywords": ["Elixir", "syntax"],
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"publisher": "mjmcloug",
 	"icon": "images/logo.png",
 	"engines": {
@@ -23,6 +23,10 @@
 			"language": "elixir",
 			"scopeName": "source.elixir",
 			"path": "./src/syntaxes/elixir.tmLanguage"
+		}],
+		"snippets": [			{
+			"language": "elixir",
+			"path": "./src/snippets/snippets.json"
 		}]
 	},
 	"scripts": {
