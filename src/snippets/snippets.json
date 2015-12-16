@@ -5,6 +5,12 @@
 		"description": "def",
 		"scope": "source.elixir"
 	},
+	"test": {
+		"prefix": "test",
+		"body": "test $1 do\n\t$0\nend",
+		"description": "test",
+		"scope": "source.elixir"
+	},
 	"defc": {
 		"prefix": "defc",
 		"body": "defcallback $1 :: $0",
