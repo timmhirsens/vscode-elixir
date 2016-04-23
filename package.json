@@ -6,12 +6,14 @@
 	"version": "0.0.3",
 	"publisher": "mjmcloug",
 	"icon": "images/logo.png",
+	"main": "./out/src/elixirMain",
 	"engines": {
 		"vscode": "^0.10.1"
 	},
 	"categories": [
 		"Languages"
 	],
+	"activationEvents": ["onLanguage:elixir"],
 	"contributes": {
 		"languages": [{
 			"id": "elixir",
