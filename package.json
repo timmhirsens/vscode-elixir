@@ -13,23 +13,66 @@
 	"categories": [
 		"Languages"
 	],
-	"activationEvents": ["onLanguage:elixir"],
+	"activationEvents": [
+		"onLanguage:elixir"
+	],
 	"contributes": {
-		"languages": [{
-			"id": "elixir",
-			"aliases": ["Elixir", "elixir"],
-			"extensions": [".ex",".exs"],
-			"configuration": "./src/elixir.configuration.json"
-		}],
-		"grammars": [{
-			"language": "elixir",
-			"scopeName": "source.elixir",
-			"path": "./src/syntaxes/elixir.tmLanguage"
-		}],
-		"snippets": [			{
-			"language": "elixir",
-			"path": "./src/snippets/snippets.json"
-		}]
+		"languages": [
+			{
+				"id": "elixir",
+				"aliases": [
+					"Elixir",
+					"elixir"
+				],
+				"extensions": [
+					".ex",
+					".exs"
+				],
+				"configuration": "./elixir.configuration.json"
+			},
+			{
+				"id": "Eex",
+				"aliases": [
+					"Eex",
+					"eex"
+				],
+				"extensions": [
+					".eex"
+				]
+			},
+			{
+				"id": "HTML (Eex)",
+				"aliases": [
+					"HTML (Eex)"
+				],
+				"extensions": [
+					".html.eex"
+				]
+			}
+		],
+		"grammars": [
+			{
+				"language": "elixir",
+				"scopeName": "source.elixir",
+				"path": "./syntaxes/elixir.json"
+			},
+			{
+				"language": "Eex",
+				"scopeName": "text.elixir",
+				"path": "./syntaxes/eex.json"
+			},
+			{
+				"language": "HTML (Eex)",
+				"scopeName": "text.html.elixir",
+				"path": "./syntaxes/html (eex).json"
+			}
+		],
+		"snippets": [
+			{
+				"language": "elixir",
+				"path": "./snippets/snippets.json"
+			}
+		]
 	},
 	"scripts": {
 		"vscode:prepublish": "node ./node_modules/vscode/bin/compile",
