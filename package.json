@@ -3,7 +3,7 @@
 	"displayName": "vscode-elixir",
 	"description": "Elixir support for VSCode",
 	"keywords": ["Elixir", "syntax"],
-	"version": "0.0.3",
+	"version": "0.0.6",
 	"publisher": "mjmcloug",
 	"icon": "images/logo.png",
 	"main": "./out/src/elixirMain",
