@@ -1,42 +1,62 @@
 {
-	"name": "vscode-elixir",
-	"displayName": "vscode-elixir",
-	"description": "Elixir support for VSCode",
-	"keywords": ["Elixir", "syntax"],
-	"version": "0.0.6",
-	"publisher": "mjmcloug",
-	"icon": "images/logo.png",
-	"main": "./out/src/elixirMain",
-	"engines": {
-		"vscode": "^0.10.1"
-	},
-	"categories": [
-		"Languages"
-	],
-	"activationEvents": ["onLanguage:elixir"],
-	"contributes": {
-		"languages": [{
-			"id": "elixir",
-			"aliases": ["Elixir", "elixir"],
-			"extensions": [".ex",".exs"],
-			"configuration": "./src/elixir.configuration.json"
-		}],
-		"grammars": [{
-			"language": "elixir",
-			"scopeName": "source.elixir",
-			"path": "./src/syntaxes/elixir.tmLanguage"
-		}],
-		"snippets": [			{
-			"language": "elixir",
-			"path": "./src/snippets/snippets.json"
-		}]
-	},
-	"scripts": {
-		"vscode:prepublish": "node ./node_modules/vscode/bin/compile",
-		"compile": "node ./node_modules/vscode/bin/compile -watch -p ./"
-	},
-	"devDependencies": {
-		"typescript": "^1.6.2",
-		"vscode": "0.10.x"
-	}
+  "name": "vscode-elixir",
+  "displayName": "vscode-elixir",
+  "description": "Elixir support for VSCode",
+  "keywords": [
+    "Elixir",
+    "syntax"
+  ],
+  "version": "0.0.6",
+  "publisher": "mjmcloug",
+  "icon": "images/logo.png",
+  "main": "./out/src/elixirMain",
+  "engines": {
+    "vscode": "^0.10.1"
+  },
+  "categories": [
+    "Languages"
+  ],
+  "activationEvents": [
+    "onLanguage:elixir"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "elixir",
+        "aliases": [
+          "Elixir",
+          "elixir"
+        ],
+        "extensions": [
+          ".ex",
+          ".exs"
+        ],
+        "configuration": "./out/src/elixir.configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "elixir",
+        "scopeName": "source.elixir",
+        "path": "./out/src/syntaxes/elixir.tmLanguage"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "elixir",
+        "path": "./out/src/snippets/snippets.json"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "node ./node_modules/vscode/bin/compile",
+    "compile": "node ./node_modules/vscode/bin/compile -watch -p ./"
+  },
+  "devDependencies": {
+    "del": "^2.2.0",
+    "gulp": "^3.9.1",
+    "gulp-changed": "^1.3.0",
+    "typescript": "^1.6.2",
+    "vscode": "0.10.x"
+  }
 }
