@@ -23,7 +23,20 @@ export class ElixirServer {
     }
 
     start() {
-        const projectPath: string = path.join(vscode.workspace.rootPath);
+        let projectPath: string = "";
+        if(vscode.workspace.rootPath !== undefined) {
+            projectPath = path.join(vscode.workspace.rootPath);
+        } else {
+            const savedFiles: vscode.TextDocument[] = vscode.workspace.textDocuments.filter((value) => {
+                return value.uri.scheme === 'file';
+            });
+            if(savedFiles.length > 0) {
+                projectPath = path.dirname(savedFiles[0].fileName);
+            } else {
+                // Bail out, lets use our extensionPath as projectPath
+                projectPath = vscode.extensions.getExtension("mjmcloug.vscode-elixir").extensionPath;
+            }
+        }
         const optionsWin = { cwd: projectPath, windowsVerbatimArguments: true, stdio: 'pipe' };
         const optionsUnix = { cwd: projectPath, stdio: 'pipe' };
         if (process.platform === 'win32') {
