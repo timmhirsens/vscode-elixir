@@ -1,4 +1,10 @@
 {
+	"cond": {
+		"prefix": "cond",
+		"body": "cond do\n\t$1 ->\n\t\t$0\nend",
+		"description": "cond",
+		"scope": "source.elixir"
+	},
 	"def": {
 		"prefix": "def",
 		"body": "def $1 do\n\t$0\nend",
