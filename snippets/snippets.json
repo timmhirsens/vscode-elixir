@@ -77,9 +77,15 @@
 		"description": "defstruct",
 		"scope": "source.elixir"
 	},
-	"doc": {
+	"do":   {
+		"prefix": "do",
+		"body": "do \n\t$0\nend",
+                "description": "do",
+                "scope": "source.elixir"
+	},
+	"@doc": {
 		"prefix": "doc",
-		"body": "@doc \"\"\"\n$0\n\"\"\"",
+		"body": "doc \"\"\"\n$0\n\"\"\"",
 		"description": "doc",
 		"scope": "source.elixir"
 	},
