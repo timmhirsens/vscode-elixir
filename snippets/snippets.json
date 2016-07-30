@@ -77,9 +77,9 @@
 		"description": "defstruct",
 		"scope": "source.elixir"
 	},
-	"doc": {
+	"@doc": {
 		"prefix": "doc",
-		"body": "@doc \"\"\"\n$0\n\"\"\"",
+		"body": "doc \"\"\"\n$0\n\"\"\"",
 		"description": "doc",
 		"scope": "source.elixir"
 	},
