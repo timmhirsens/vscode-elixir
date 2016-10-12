@@ -1,4 +1,10 @@
 {
+	"case": {
+		"prefix": "case",
+		"body": "case $1 do\n\t$2 ->\n\t\t$0\nend",
+		"description": "case",
+		"scope": "source.elixir"
+	},
 	"cond": {
 		"prefix": "cond",
 		"body": "cond do\n\t$1 ->\n\t\t$0\nend",
