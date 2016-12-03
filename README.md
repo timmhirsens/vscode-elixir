@@ -8,3 +8,5 @@ This extension adds elixir support for VSCode
 * Syntax Coloring
 * Snippets
 * Intellisense (thanks to [fr1zle](https://github.com/fr1zle))
+
+
