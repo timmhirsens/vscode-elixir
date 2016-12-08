@@ -126,9 +126,12 @@ export class ElixirServer {
         }
         const command: string = `DOCL { "${word}", "${document.fileName}", ${position.line + 1} }\n`;
         const resultCb = (result: string) => {
-            console.log(result);
-            const hover = new vscode.Hover(result, wordAtPosition);
-            callback(hover);
+            if (result) {
+                const hover = new vscode.Hover(result, wordAtPosition);
+                callback(hover);
+            } else {
+                callback([]);
+            }
         }
         this.sendRequest('DOCL', command, resultCb);
     }
