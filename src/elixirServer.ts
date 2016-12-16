@@ -24,13 +24,13 @@ export class ElixirServer {
 
     start() {
         let projectPath: string = "";
-        if(vscode.workspace.rootPath !== undefined) {
+        if (vscode.workspace.rootPath !== undefined) {
             projectPath = path.join(vscode.workspace.rootPath);
         } else {
             const savedFiles: vscode.TextDocument[] = vscode.workspace.textDocuments.filter((value) => {
                 return value.uri.scheme === 'file';
             });
-            if(savedFiles.length > 0) {
+            if (savedFiles.length > 0) {
                 projectPath = path.dirname(savedFiles[0].fileName);
             } else {
                 // Bail out, lets use our extensionPath as projectPath
@@ -72,7 +72,9 @@ export class ElixirServer {
             if (!errorString.startsWith('Initializing')) {
                 console.log('[vscode-elixir] error: arboting command', chunk.toString());
                 //TODO: this could be handled better.
-                this.resultCallback('');
+                if (this.resultCallback) {
+                    this.resultCallback('');
+                }
                 this.busy = false;
 
             } else {
@@ -201,7 +203,7 @@ export class ElixirServer {
                 const lastIndex = hint.lastIndexOf('.');
                 prefix = hint.substr(0, lastIndex + 1);
             }
-            if (kind === 'function') {
+            if (kind === 'function' || kind === 'macro') {
                 if (name.indexOf('/') >= 0) {
                     name = name.split('/')[0];
                 }
