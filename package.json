@@ -6,8 +6,8 @@
         "Elixir",
         "syntax"
     ],
-    "version": "0.1.1",
-    "publisher": "mjmcloug",
+    "version": "0.1.2",
+    "publisher": "LawfulGood",
     "icon": "images/logo.png",
     "main": "./out/src/elixirMain",
     "license": "MIT",
@@ -16,12 +16,12 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/mat-mcloughlin/vscode-elixir.git"
+        "url": "https://github.com/LawfulGood/vscode-elixir.git"
     },
     "bugs": {
-        "url": "https://github.com/mat-mcloughlin/vscode-elixir/issues"
+        "url": "https://github.com/LawfulGood/vscode-elixir/issues"
     },
-    "homepage": "https://github.com/mat-mcloughlin/vscode-elixir",
+    "homepage": "https://github.com/LawfulGood/vscode-elixir",
     "categories": [
         "Languages"
     ],
