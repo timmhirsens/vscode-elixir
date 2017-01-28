@@ -28,6 +28,9 @@
     "activationEvents": [
         "onLanguage:elixir"
     ],
+    "emmet.syntaxProfiles": {
+        "HTML (Eex)": "html"
+    },
     "contributes": {
         "languages": [
             {
