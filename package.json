@@ -12,7 +12,7 @@
     "main": "./out/src/elixirMain",
     "license": "MIT",
     "engines": {
-        "vscode": "^0.10.1"
+        "vscode": "^1.6.1"
     },
     "repository": {
         "type": "git",
