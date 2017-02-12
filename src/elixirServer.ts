@@ -56,15 +56,15 @@ export class ElixirServer {
             console.log('[vscode-elixir] exited', exitCode);
         });
         this.p.stdout.on('data', (chunk) => {
-            if (chunk.indexOf(`END-OF-${this.lastRequestType}`) > -1) {
-                const chunkString: string = chunk.toString();
+            const chunkString: string = chunk.toString();
+            if (chunkString.indexOf(`END-OF-${this.lastRequestType}`) > -1) {
                 const splitStrings: string[] = chunkString.split(`END-OF-${this.lastRequestType}`);
                 const result = (this.buffer + splitStrings[0]).trim();
                 this.resultCallback(result);
                 this.buffer = '';
                 this.busy = false;
             } else {
-                this.buffer += chunk.toString();
+                this.buffer += chunkString;
             }
         });
         this.p.stderr.on('data', (chunk: Buffer) => {
