@@ -87,6 +87,24 @@
                 "language": "elixir",
                 "path": "./snippets/snippets.json"
             }
+        ],
+        "commands": [
+            {
+                "command": "elixir.test.cursor",
+                "title": "Elixir: Run Test at Cursor"
+            },
+            {
+                "command": "elixir.test.file",
+                "title": "Elixir: Run Current Test File"
+            },
+            {
+                "command": "elixir.test.project",
+                "title": "Elixir: Test Project"
+            },
+            {
+                "command": "elixir.test.previous",
+                "title": "Elixir: Re-run last test"
+            }
         ]
     },
     "scripts": {
