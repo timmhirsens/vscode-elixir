@@ -1,100 +1,36 @@
 {
     "name": "vscode-elixir",
     "displayName": "vscode-elixir",
-    "description": "Elixir support for VSCode",
-    "keywords": [
-        "Elixir",
-        "syntax"
-    ],
-    "version": "0.1.1",
+    "description": ",,",
+    "version": "0.0.1",
     "publisher": "mjmcloug",
-    "icon": "images/logo.png",
-    "main": "./out/src/elixirMain",
-    "license": "MIT",
     "engines": {
-        "vscode": "^1.6.1"
+        "vscode": "^1.5.0"
     },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/mat-mcloughlin/vscode-elixir.git"
-    },
-    "bugs": {
-        "url": "https://github.com/mat-mcloughlin/vscode-elixir/issues"
-    },
-    "homepage": "https://github.com/mat-mcloughlin/vscode-elixir",
     "categories": [
-        "Languages"
+        "Other"
     ],
     "activationEvents": [
-        "onLanguage:elixir"
+        "onCommand:extension.sayHello"
     ],
-    "emmet.syntaxProfiles": {
-        "HTML (Eex)": "html"
-    },
+    "main": "./out/src/extension",
     "contributes": {
-        "languages": [
-            {
-                "id": "elixir",
-                "aliases": [
-                    "Elixir",
-                    "elixir"
-                ],
-                "extensions": [
-                    ".ex",
-                    ".exs"
-                ],
-                "configuration": "./elixir.configuration.json"
-            },
-            {
-                "id": "Eex",
-                "aliases": [
-                    "Eex",
-                    "eex"
-                ],
-                "extensions": [
-                    ".eex"
-                ]
-            },
-            {
-                "id": "HTML (Eex)",
-                "aliases": [
-                    "HTML (Eex)"
-                ],
-                "extensions": [
-                    ".html.eex"
-                ]
-            }
-        ],
-        "grammars": [
-            {
-                "language": "elixir",
-                "scopeName": "source.elixir",
-                "path": "./syntaxes/elixir.json"
-            },
-            {
-                "language": "Eex",
-                "scopeName": "text.elixir",
-                "path": "./syntaxes/eex.json"
-            },
-            {
-                "language": "HTML (Eex)",
-                "scopeName": "text.html.elixir",
-                "path": "./syntaxes/html (eex).json"
-            }
-        ],
-        "snippets": [
-            {
-                "language": "elixir",
-                "path": "./snippets/snippets.json"
-            }
-        ]
+        "commands": [{
+            "command": "extension.sayHello",
+            "title": "Hello World"
+        }]
     },
     "scripts": {
-        "vscode:prepublish": "node ./node_modules/vscode/bin/compile",
-        "compile": "node ./node_modules/vscode/bin/compile -watch -p ./"
+        "vscode:prepublish": "tsc -p ./",
+        "compile": "tsc -watch -p ./",
+        "postinstall": "node ./node_modules/vscode/bin/install",
+        "test": "node ./node_modules/vscode/bin/test"
     },
     "devDependencies": {
-        "typescript": "^1.6.2",
-        "vscode": "0.10.x"
+        "typescript": "^2.0.3",
+        "vscode": "^1.0.0",
+        "mocha": "^2.3.3",
+        "@types/node": "^6.0.40",
+        "@types/mocha": "^2.2.32"
     }
 }

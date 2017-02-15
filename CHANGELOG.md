@@ -1,6 +1,7 @@
-### next
-  - fix startup issues
-  - remove completion of paremter indices for macros
+# Change Log
+All notable changes to the "vscode-elixir" extension will be documented in this file.
 
-### v0.1.1: 03 Dec 2016
-  - Added autoclosing quotes
+Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+
+## [Unreleased]
+- Initial release
