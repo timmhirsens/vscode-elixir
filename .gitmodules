@@ -1,0 +1,3 @@
+[submodule "alchemist-server"]
+	path = alchemist-server
+	url = https://github.com/tonini/alchemist-server
