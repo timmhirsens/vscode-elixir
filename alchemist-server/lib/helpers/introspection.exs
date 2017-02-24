@@ -89,15 +89,12 @@ defmodule Introspection do
   end
 
   defp get_callbacks_with_docs(mod) when is_atom(mod) do
-    case get_callbacks_and_docs(mod) do
-      {callbacks, docs} ->
-        Enum.filter_map docs, &match?(_, &1), fn
-          {{fun, arity}, _, :macrocallback, doc} ->
-            get_callback_with_doc(fun, :macrocallback, doc, {:"MACRO-#{fun}", arity + 1}, callbacks)
-          {{fun, arity}, _, kind, doc} ->
-            get_callback_with_doc(fun, kind, doc, {fun, arity}, callbacks)
-        end
-      _ -> []
+    {callbacks, docs} = get_callbacks_and_docs(mod)
+    Enum.map docs, fn
+      {{fun, arity}, _, :macrocallback, doc} ->
+        get_callback_with_doc(fun, :macrocallback, doc, {:"MACRO-#{fun}", arity + 1}, callbacks)
+      {{fun, arity}, _, kind, doc} ->
+        get_callback_with_doc(fun, kind, doc, {fun, arity}, callbacks)
     end
   end
 
