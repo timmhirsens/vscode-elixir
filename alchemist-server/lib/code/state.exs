@@ -70,9 +70,10 @@ defmodule Alchemist.Code.State do
     new_state = state |> add_mod_fun_to_line({current_module, func, arity}, line)
 
     if !Map.has_key?(state.mods_funs_to_lines, {current_module, func, nil}) do
-      new_state = new_state |> add_mod_fun_to_line({current_module, func, nil}, line)
+      new_state |> add_mod_fun_to_line({current_module, func, nil}, line)
+    else
+      new_state
     end
-    new_state
   end
 
   def new_alias_scope(state) do
