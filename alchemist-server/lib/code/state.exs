@@ -69,11 +69,10 @@ defmodule Alchemist.Code.State do
     current_module = state.namespace |> :lists.reverse |> Module.concat
     new_state = state |> add_mod_fun_to_line({current_module, func, arity}, line)
 
-    case !Map.has_key?(state.mods_funs_to_lines, {current_module, func, nil}) do
-      true ->
-        new_state |> add_mod_fun_to_line({current_module, func, nil}, line)
-      false ->
-        new_state
+    if !Map.has_key?(state.mods_funs_to_lines, {current_module, func, nil}) do
+      new_state |> add_mod_fun_to_line({current_module, func, nil}, line)
+    else
+      new_state
     end
   end
 

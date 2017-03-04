@@ -127,4 +127,8 @@ defmodule Alchemist.Server do
   defp purge_apps(apps) do
     for a <- apps, do: Application.unload(a)
   end
+
+  def version() do
+    @version
+  end
 end
