@@ -28,11 +28,19 @@ defmodule Alchemist.API.Comp do
     list2 = Complete.run(hint)
     first_item = Enum.at(list2, 0)
 
-    {first_item, list2} = if first_item in [nil, ""] do
-      {"#{hint};hint", list2}
-    else
-      {first_item, List.delete_at(list2, 0)}
-    end
+    first_item =
+      if first_item in [nil, ""] do
+        "#{hint};hint"
+      else
+        first_item
+      end
+
+    list2 =
+      if first_item in [nil, ""] do
+        list2
+      else
+        List.delete_at(list2, 0)
+      end
 
     full_list = [first_item] ++ find_attributes(attributes, hint) ++ find_vars(vars, hint) ++ list1 ++ list2
     full_list |> print
