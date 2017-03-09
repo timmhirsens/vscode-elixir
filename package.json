@@ -6,7 +6,7 @@
         "Elixir",
         "syntax"
     ],
-    "version": "0.1.1",
+    "version": "0.1.2",
     "publisher": "mjmcloug",
     "icon": "images/logo.png",
     "main": "./out/src/elixirMain",
