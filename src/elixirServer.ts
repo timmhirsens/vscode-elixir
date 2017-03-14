@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as cp from 'child_process';
 import * as path from 'path';
+import * as context from './elixirContext';
 
 export class ElixirServer {
     p: cp.ChildProcess;
@@ -56,6 +57,7 @@ export class ElixirServer {
             console.log('[vscode-elixir] exited', exitCode);
         });
         this.p.stdout.on('data', (chunk) => {
+            console.log('>> ', chunk.toString());
             if (chunk.indexOf(`END-OF-${this.lastRequestType}`) > -1) {
                 const chunkString: string = chunk.toString();
                 const splitStrings: string[] = chunkString.split(`END-OF-${this.lastRequestType}`);
@@ -69,18 +71,13 @@ export class ElixirServer {
         });
         this.p.stderr.on('data', (chunk: Buffer) => {
             const errorString = chunk.toString();
-            if (!errorString.startsWith('Initializing')) {
-                console.log('[vscode-elixir] error: arboting command', chunk.toString());
-                //TODO: this could be handled better.
-                if (this.resultCallback) {
-                    this.resultCallback('');
-                }
-                this.busy = false;
-
-            } else {
-                console.log('[vscode-elixir]', chunk.toString());
-                this.ready = true;
+            console.log('[vscode-elixir] error: arboting command', chunk.toString());
+            //TODO: this could be handled better.
+            if (this.resultCallback) {
+                this.resultCallback('');
             }
+            this.busy = false;
+            this.ready = true;
         });
     }
 
@@ -158,7 +155,9 @@ export class ElixirServer {
             callback([]);
             return;
         }
-        const command: string = `COMP { "${word}", "${document.fileName}", ${position.line + 1} }\n`;
+        const scope = context.buildContext(document.getText());
+        const command: string = `COMP { "${word}", ${scope} }\n`;
+        console.log(command);
         const resultCb = (result: string) => {
             const suggestionLines = result.split('\n');
             // remove 'hint' suggestion (always the first one returned by alchemist)
