@@ -162,21 +162,22 @@ export class ElixirServer {
         const resultCb = (result: string) => {
             const suggestionLines = result.split('\n');
             // remove 'hint' suggestion (always the first one returned by alchemist)
-            suggestionLines.shift();
+            const hintLine = suggestionLines.shift();
             const completionItems = suggestionLines.map((line) => {
-                return this.createCompletion(word, line);
+                return this.createCompletion(word, line, hintLine.startsWith(':'));
             });
             callback(completionItems);
         };
         this.sendRequest('COMP', command, resultCb);
     }
 
-    private createCompletion(hint: string, line: string) {
+    private createCompletion(hint: string, line: string, isErlangModule = false) {
         const suggestion = line.split(';');
         const completionItem = new vscode.CompletionItem(suggestion[0]);
         completionItem.documentation = suggestion[suggestion.length - 2];
         switch (suggestion[1]) {
             case 'macro':
+            case 'public_function':
             case 'function': {
                 completionItem.kind = vscode.CompletionItemKind.Function;
                 break;
@@ -193,6 +194,9 @@ export class ElixirServer {
                 const lastIndex = hint.lastIndexOf('.');
                 prefix = hint.substr(0, lastIndex + 1);
             }
+            if(isErlangModule) {
+                prefix = ':' + prefix;
+            }
             completionItem.label = prefix + name;
             completionItem.insertText = prefix + name;
         } else {
@@ -203,7 +207,7 @@ export class ElixirServer {
                 const lastIndex = hint.lastIndexOf('.');
                 prefix = hint.substr(0, lastIndex + 1);
             }
-            if (kind === 'function' || kind === 'macro') {
+            if (kind === 'function' || kind === 'macro' || kind === 'public_function') {
                 if (name.indexOf('/') >= 0) {
                     name = name.split('/')[0];
                 }

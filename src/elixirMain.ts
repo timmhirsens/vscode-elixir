@@ -10,7 +10,7 @@ let elixirServer: ElixirServer;
 export function activate(ctx: vscode.ExtensionContext) {
     this.elixirServer = new ElixirServer();
     this.elixirServer.start();
-    ctx.subscriptions.push(vscode.languages.registerCompletionItemProvider(ELIXIR_MODE, new ElixirAutocomplete(this.elixirServer)));
+    ctx.subscriptions.push(vscode.languages.registerCompletionItemProvider(ELIXIR_MODE, new ElixirAutocomplete(this.elixirServer), '.'));
     ctx.subscriptions.push(vscode.languages.registerDefinitionProvider(ELIXIR_MODE, new ElixirDefinitionProvider(this.elixirServer)));
     ctx.subscriptions.push(vscode.languages.setLanguageConfiguration('elixir', configuration));
 }

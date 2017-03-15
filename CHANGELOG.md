@@ -1,3 +1,6 @@
+### v0.1.3: 15 Mar 2017
+  - minor fixes for autocompletion issues
+
 ### v0.1.2: 09 Mar 2017
   - fix startup issues
   - remove completion of paremter indices for macros
