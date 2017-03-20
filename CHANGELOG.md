@@ -1,3 +1,6 @@
+### v0.3.0: 20 Mar 2017
+  - implemented a documentation lookup when hovering over code
+
 ### v0.2.0: 15 Mar 2017
   - minor fixes for autocompletion issues
 
