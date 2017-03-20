@@ -118,6 +118,26 @@ export class ElixirServer {
         this.sendRequest('DEFL', command, resultCb);
     }
 
+    getDocumentation(document: vscode.TextDocument, position: vscode.Position, callback: Function): void {
+        const wordAtPosition = document.getWordRangeAtPosition(position);
+        const word = document.getText(wordAtPosition);
+        if (word.indexOf('\n') >= 0) {
+            console.error('[vscode-elixir] got whole file as word');
+            callback([]);
+            return;
+        }
+        const command: string = `DOCL { "${word}", "${document.fileName}", ${position.line + 1} }\n`;
+        const resultCb = (result: string) => {
+            if (result) {
+                const hover = new vscode.Hover(result, wordAtPosition);
+                callback(hover);
+            } else {
+                callback([]);
+            }
+        }
+        this.sendRequest('DOCL', command, resultCb);
+    }
+
     createDefinitionLookup(word: string): string {
         if (word.indexOf('.') >= 0) {
             const words = word.split('.');
