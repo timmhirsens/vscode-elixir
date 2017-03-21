@@ -1,6 +1,6 @@
 # Elixir Support for Visual Studio Code 
 
-[![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg?style=flat-square)](https://gitter.im/vscode-elixir/Lobby) [![Build Status](https://semaphoreci.com/api/v1/fr1zle/vscode-elixir/branches/master/shields_badge.svg)](https://semaphoreci.com/fr1zle/vscode-elixir)
+[![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)](https://gitter.im/vscode-elixir/Lobby) [![Build Status](https://semaphoreci.com/api/v1/fr1zle/vscode-elixir/branches/master/shields_badge.svg)](https://semaphoreci.com/fr1zle/vscode-elixir)
 
 Read the [CHANGELOG](https://github.com/fr1zle/vscode-elixir/blob/master/CHANGELOG.md) to see what has changed in this extension over time.
 
