@@ -70,7 +70,7 @@ export class ElixirServer {
         this.p.stderr.on('data', (chunk: Buffer) => {
             const errorString = chunk.toString();
             if (!errorString.startsWith('Initializing')) {
-                console.log('[vscode-elixir] error: arboting command', chunk.toString());
+                console.log('[vscode-elixir] error: aborting command', chunk.toString());
                 //TODO: this could be handled better.
                 if (this.resultCallback) {
                     this.resultCallback('');
