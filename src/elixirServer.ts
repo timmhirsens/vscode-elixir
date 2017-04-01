@@ -40,7 +40,8 @@ export class ElixirServer {
         const optionsWin = { cwd: projectPath, windowsVerbatimArguments: true, stdio: 'pipe' };
         const optionsUnix = { cwd: projectPath, stdio: 'pipe' };
         if (process.platform === 'win32') {
-            this.p = cp.spawn('cmd', ['/s', '/c', '"' + [this.command].concat(this.args).concat(this.env).join(' ') + '"'], optionsWin);
+            const windowsPath = "\"" + this.args + "\"";
+            this.p = cp.spawn('cmd', ['/s', '/c', '"' + [this.command].concat(windowsPath).concat(this.env).join(' ') + '"'], optionsWin);
         }
         else {
             this.p = cp.spawn(this.command, this.args.concat(this.env), optionsUnix);
@@ -70,7 +71,7 @@ export class ElixirServer {
         this.p.stderr.on('data', (chunk: Buffer) => {
             const errorString = chunk.toString();
             if (!errorString.startsWith('Initializing')) {
-                console.log('[vscode-elixir] error: arboting command', chunk.toString());
+                console.log('[vscode-elixir] error: aborting command', chunk.toString());
                 //TODO: this could be handled better.
                 if (this.resultCallback) {
                     this.resultCallback('');
