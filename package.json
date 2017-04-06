@@ -98,5 +98,45 @@
         "typescript": "^1.6.2",
         "vsce": "^1.18.0",
         "vscode": "0.10.x"
+    },
+    "contributes": {
+        "problemMatchers": [
+            {
+                "name": "mixCompileError",
+                "owner": "elixir",
+                "fileLocation": ["relative", "${workspaceRoot}"],
+                "severity": "error",
+                "pattern": {
+                    "regexp": "^\\*\\* \\((\\w+)\\) (.*):(\\d+): (.*)$",
+                    "file": 2,
+                    "location": 3,
+                    "message": 0
+                }
+            },
+            {
+                "name": "mixCompileWarning",
+                "owner": "elixir",
+                "fileLocation": ["relative", "${workspaceRoot}"],
+                "severity": "warning",
+                "pattern": {
+                    "regexp": "^warning: (.*)$",
+                    "message": 1
+                }
+            },
+            {
+                "name": "mixTestFailure",
+                "owner": "elixir",
+                "fileLocation": ["relative", "${workspaceRoot}"],
+                "severity": "warning",
+                "pattern":  [{
+                    "regexp": "^  \\d+\\) (.*)$",
+                    "message": 1
+                },{
+                    "regexp": "^     (.*):(\\d+)$",
+                    "file": 1,
+                    "location": 2
+                }]
+            }
+        ]
     }
 }
