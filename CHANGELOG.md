@@ -1,3 +1,6 @@
+### v0.3.1: 06 Apr 2017
+  - Small bufix for Windows users
+
 ### v0.3.0: 20 Mar 2017
   - implemented a documentation lookup when hovering over code
 
