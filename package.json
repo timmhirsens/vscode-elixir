@@ -87,19 +87,7 @@
                 "language": "elixir",
                 "path": "./snippets/snippets.json"
             }
-        ]
-    },
-    "scripts": {
-        "vscode:prepublish": "node ./node_modules/vscode/bin/compile",
-        "compile": "node ./node_modules/vscode/bin/compile -watch -p ./",
-        "build": "vsce package"
-    },
-    "devDependencies": {
-        "typescript": "^1.6.2",
-        "vsce": "^1.18.0",
-        "vscode": "0.10.x"
-    },
-    "contributes": {
+        ],
         "problemMatchers": [
             {
                 "name": "mixCompileError",
@@ -138,5 +126,15 @@
                 }]
             }
         ]
+    },
+    "scripts": {
+        "vscode:prepublish": "node ./node_modules/vscode/bin/compile",
+        "compile": "node ./node_modules/vscode/bin/compile -watch -p ./",
+        "build": "vsce package"
+    },
+    "devDependencies": {
+        "typescript": "^1.6.2",
+        "vsce": "^1.18.0",
+        "vscode": "0.10.x"
     }
 }
