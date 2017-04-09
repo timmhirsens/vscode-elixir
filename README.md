@@ -15,7 +15,10 @@ This extension adds rich elixir language support to VS Code including:
 
 ### Features
 
+#### Autocomplete
 ![example](https://raw.githubusercontent.com/fr1zle/vscode-elixir/master/images/example.gif)
+#### Problems
+![problems](https://raw.githubusercontent.com/fr1zle/vscode-elixir/master/images/problems.gif)
 
 ## Using
 
@@ -26,6 +29,47 @@ There currently is no option to change the path of the `elixir` executable. If y
 ### Autocomplete
 
 Autocomplete/Intellisense is implemented using an older version of [alchemist-server](https://github.com/tonini/alchemist-server) with some patches applied. For the auto complete to work properly, you will have to recompile your source code from time to time (using `mix compile`) for it to pick up the latest changes to your source code.
+
+### Problem Reporting
+
+To get compile warning / errors and test failures in your problem view, add the following to your `.vscode/tasks.json`:
+
+```json
+{
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "0.1.0",
+  "command": "mix",
+  "isShellCommand": true,
+  "showOutput": "always",
+  "suppressTaskName": true,
+  "tasks": [
+    {
+      "taskName": "build",
+      "args": [
+        "compile"
+      ],
+      "problemMatcher": [
+        "$mixCompileError",
+        "$mixCompileWarning"
+      ],
+      "isBuildCommand": true
+    },
+    {
+      "taskName": "test",
+      "args": [
+        "test"
+      ],
+      "problemMatcher": [
+        "$mixCompileError",
+        "$mixCompileWarning",
+        "$mixTestFailure"
+      ],
+      "isTestCommand": true
+    }
+  ]
+}
+```
 
 ## Contributors
 
