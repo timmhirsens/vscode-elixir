@@ -23,6 +23,12 @@
 		"description": "test",
 		"scope": "source.elixir"
 	},
+	"describe": {
+		"prefix": "describe",
+		"body": "describe $1 do\n\t$0\nend",
+		"description": "describe",
+		"scope": "source.elixir"
+	},
 	"defc": {
 		"prefix": "defc",
 		"body": "defcallback $1 :: $0",
