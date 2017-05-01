@@ -6,7 +6,7 @@
         "Elixir",
         "syntax"
     ],
-    "version": "0.3.1",
+    "version": "0.4.0",
     "publisher": "mjmcloug",
     "icon": "images/logo.png",
     "main": "./out/src/elixirMain",
@@ -92,7 +92,10 @@
             {
                 "name": "mixCompileError",
                 "owner": "elixir",
-                "fileLocation": ["relative", "${workspaceRoot}"],
+                "fileLocation": [
+                    "relative",
+                    "${workspaceRoot}"
+                ],
                 "severity": "error",
                 "pattern": {
                     "regexp": "^\\*\\* \\((\\w+)\\) (.*):(\\d+): (.*)$",
@@ -104,7 +107,10 @@
             {
                 "name": "mixCompileWarning",
                 "owner": "elixir",
-                "fileLocation": ["relative", "${workspaceRoot}"],
+                "fileLocation": [
+                    "relative",
+                    "${workspaceRoot}"
+                ],
                 "severity": "warning",
                 "pattern": {
                     "regexp": "^warning: (.*)$",
@@ -114,16 +120,22 @@
             {
                 "name": "mixTestFailure",
                 "owner": "elixir",
-                "fileLocation": ["relative", "${workspaceRoot}"],
+                "fileLocation": [
+                    "relative",
+                    "${workspaceRoot}"
+                ],
                 "severity": "warning",
-                "pattern":  [{
-                    "regexp": "^  \\d+\\) (.*)$",
-                    "message": 1
-                },{
-                    "regexp": "^     (.*):(\\d+)$",
-                    "file": 1,
-                    "location": 2
-                }]
+                "pattern": [
+                    {
+                        "regexp": "^  \\d+\\) (.*)$",
+                        "message": 1
+                    },
+                    {
+                        "regexp": "^     (.*):(\\d+)$",
+                        "file": 1,
+                        "location": 2
+                    }
+                ]
             }
         ]
     },
