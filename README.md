@@ -36,8 +36,6 @@ To get compile warning / errors and test failures in your problem view, add the 
 
 ```json
 {
-  // See https://go.microsoft.com/fwlink/?LinkId=733558
-  // for the documentation about the tasks.json format
   "version": "0.1.0",
   "command": "mix",
   "isShellCommand": true,
@@ -70,6 +68,8 @@ To get compile warning / errors and test failures in your problem view, add the 
   ]
 }
 ```
+
+See https://go.microsoft.com/fwlink/?LinkId=733558 for the documentation about the tasks.json format
 
 ## Contributors
 
