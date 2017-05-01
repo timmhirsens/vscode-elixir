@@ -1,3 +1,7 @@
+### v0.4.0: 01 May 2017
+  - Problem matchers for compile and test errors
+  - describe snippet
+
 ### v0.3.1: 06 Apr 2017
   - Small bufix for Windows users
 
