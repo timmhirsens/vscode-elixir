@@ -112,10 +112,17 @@
                     "${workspaceRoot}"
                 ],
                 "severity": "warning",
-                "pattern": {
-                    "regexp": "^warning: (.*)$",
-                    "message": 1
-                }
+                "pattern": [
+                    {
+                        "regexp": "^warning: (.*)$",
+                        "message": 1
+                    },
+                    {
+                        "regexp": "^  (.*):(\\d+)$",
+                        "file": 1,
+                        "location": 2
+                    }
+                ]
             },
             {
                 "name": "mixTestFailure",
