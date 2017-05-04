@@ -1,6 +1,5 @@
 ### v0.4.1: 04 May 2017
-  - Problem matchers for compile and test errors
-  - describe snippet
+  - Problem matchers for compile warnings fixed
 
 ### v0.4.0: 01 May 2017
   - Problem matchers for compile and test errors
