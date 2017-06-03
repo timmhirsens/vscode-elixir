@@ -34,7 +34,7 @@ export function activate(ctx: vscode.ExtensionContext) {
             ctx.subscriptions.push(vscode.languages.registerCompletionItemProvider(ELIXIR_MODE, new ElixirSenseAutocompleteProvider(elixirSenseClient), '.', '{', '@'));
             ctx.subscriptions.push(vscode.languages.registerDefinitionProvider(ELIXIR_MODE, new ElixirSenseDefinitionProvider(elixirSenseClient)));
             ctx.subscriptions.push(vscode.languages.registerHoverProvider(ELIXIR_MODE, new ElixirSenseHoverProvider(elixirSenseClient)));
-            ctx.subscriptions.push(vscode.languages.registerSignatureHelpProvider(ELIXIR_MODE, new ElixirSenseSignatureHelpProvider(elixirSenseClient), '('));
+            ctx.subscriptions.push(vscode.languages.registerSignatureHelpProvider(ELIXIR_MODE, new ElixirSenseSignatureHelpProvider(elixirSenseClient), '(', ','));
             ctx.subscriptions.push(vscode.languages.setLanguageConfiguration('elixir', configuration));
         });
         elixirSenseServer.start(0, env);
