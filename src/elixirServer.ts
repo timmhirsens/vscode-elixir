@@ -57,7 +57,7 @@ export class ElixirServer {
             console.log('[vscode-elixir] exited', exitCode);
         });
         this.p.stdout.on('data', (chunk) => {
-            if (chunk.indexOf(`END-OF-${this.lastRequestType}`) > -1) {
+            if ((<Buffer>chunk).indexOf(`END-OF-${this.lastRequestType}`) > -1) {
                 const chunkString: string = chunk.toString();
                 const splitStrings: string[] = chunkString.split(`END-OF-${this.lastRequestType}`);
                 const result = (this.buffer + splitStrings[0]).trim();
