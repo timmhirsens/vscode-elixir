@@ -97,18 +97,16 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
                 lastModuleHint = modulesToAdd[modulesToAdd.length - 1];
         }
 
-        suggestions = suggestions.map((serverSuggestion, index) => {
+        suggestions = this.sortSuggestions(suggestions).map((serverSuggestion, index) => {
             let { name } = serverSuggestion;
             if (lastModuleHint && Array.from<string>([name, `:${name}`]).findIndex(i => i == lastModuleHint) == -1 && modulesToAdd.length > 0) {
                 serverSuggestion.name = modulesToAdd.join('.') + '.' + name;
             }
             return this.createSuggestion(serverSuggestion, index, prefix, pipeBefore, captureBefore, defBefore);
+        }).filter(function (item: vscode.CompletionItem) {
+            return item != null && item.label !== '';
         });
 
-        suggestions = suggestions.filter(function (item) {
-            return item != null && item !== '';
-        });
-        suggestions = this.sortSuggestions(suggestions);
         return suggestions;
     }
 
@@ -150,7 +148,9 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
                 };
             }
         })();
-        suggestion.sortText = index.toString();
+
+        suggestion.sortText = ("00" + index).slice(-3);
+
         return suggestion;
     }
 
@@ -234,9 +234,9 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
                 case 'function':
                     return [vscode.CompletionItemKind.Function, mod];
                 case 'public_macro':
-                    return [vscode.CompletionItemKind.Module, 'public'];
+                    return [vscode.CompletionItemKind.Function, 'public'];
                 case 'macro':
-                    return [vscode.CompletionItemKind.Module, mod];
+                    return [vscode.CompletionItemKind.Function, mod];
                 default:
                     return [null, ''];
             }
@@ -346,40 +346,42 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
 
         return {
             label: name,
-            kind: vscode.CompletionItemKind.Class,
+            kind: vscode.CompletionItemKind.Module,
             detail: subtype || 'module',
             documentation: description,
         };
     }
 
-    sortSuggestions(suggestions: vscode.CompletionItem[]) {
+    sortSuggestions(suggestions) {
+        let sortKind = function (a, b) {
+            let priority = {
+                "callback": 1,
+                "return": 1,
+                "variable": 2,
+                "attribute": 3,
+                "private_function": 4,
+                "module": 5,
+                "public_macro": 6,
+                "macro": 6,
+                "public_function": 6,
+                "function": 6
+            };
 
-        let sortKind = function (a: vscode.CompletionItem, b: vscode.CompletionItem) {
-
-            let priority = new Map<vscode.CompletionItemKind, Number>([
-                [null, 0],
-                [undefined, 0],
-                [vscode.CompletionItemKind.Value, 1], // callbacks/returns
-                [vscode.CompletionItemKind.Variable, 2], // variable
-                [vscode.CompletionItemKind.Property, 3], // module attribute
-                [vscode.CompletionItemKind.Method, 4], // private function
-                [vscode.CompletionItemKind.Class, 5], // module
-                [vscode.CompletionItemKind.Module, 6], // macro
-                [vscode.CompletionItemKind.Function, 6] // function
-            ]);
-
-            return priority[a.kind] - priority[b.kind];
+            return priority[a.type] - priority[b.type];
         };
 
-        let isFunc = suggestion => !!suggestion.func;
+        let funcTypes = ["private_function", "public_function", "function", "public_macro", "macro"];
+        let isFunc = (suggestion) => funcTypes.indexOf(suggestion.type) >= 0;
 
         let sortFunctionByType = function (a, b) {
             if (!isFunc(a) || !isFunc(b)) {
                 return 0;
             }
+
             let startsWithLetterRegex = /^[a-zA-Z]/;
-            let aStartsWithLetter = a.func.match(startsWithLetterRegex);
-            let bStartsWithLetter = b.func.match(startsWithLetterRegex);
+            let aStartsWithLetter = a.name.match(startsWithLetterRegex);
+            let bStartsWithLetter = b.name.match(startsWithLetterRegex);
+
             if (!aStartsWithLetter && bStartsWithLetter) {
                 return 1;
             } else if (aStartsWithLetter && !bStartsWithLetter) {
@@ -393,9 +395,10 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
             if (!isFunc(a) || !isFunc(b)) {
                 return 0;
             }
-            if (a.func > b.func) {
+
+            if (a.name > b.name) {
                 return 1;
-            } else if (a.func < b.func) {
+            } else if (a.name < b.name) {
                 return -1;
             } else {
                 return 0;
@@ -409,11 +412,11 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
             return a.arity - b.arity;
         };
 
-        let sortByOriginalOrder = (a, b) => a.index - b.index;
+        let sortFunc = (a, b) => sortKind(a, b) || sortFunctionByType(a, b) || sortFunctionByName(a, b) || sortFunctionByArity(a, b);
 
-        let sortFunc = (a, b) => sortKind(a, b) || sortFunctionByType(a, b) || sortFunctionByName(a, b) || sortFunctionByArity(a, b) || sortByOriginalOrder(a, b);
+        suggestions = suggestions.sort(sortFunc);
 
-        return suggestions.sort(sortFunc);
+        return suggestions;
     }
 
     moduleAndFuncName(moduleParts, func) {
