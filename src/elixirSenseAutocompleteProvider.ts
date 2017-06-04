@@ -188,18 +188,22 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
             moduleParts = array.slice(0, adjustedLength - 1),
             postfix = array[adjustedLength - 1];
 
-        let params = [];
+        //let params = [];
         let displayText = '';
+        let detail = '';
         let snippet = func;
         let description = desc;
         spec = spec;
 
         if (signature) {
-            params = args.map((arg, i) => `\${${i + 1}:${arg.replace(/\s+\\.*$/, '')}}`);
-            displayText = `${func}(${args.join(', ')})`;
+            //params = args.map((arg, i) => `\${${i + 1}:${arg.replace(/\s+\\.*$/, '')}}`);
+            //displayText = `${func}(${args.join(', ')})`;
+            displayText = `${func}`;
+            detail = `(${args.join(', ')})`;
         } else {
             if (Number(arity) > 0) {
-                params = [1, arity, true].map(i => `\${${i}:arg${i}}`);
+                //params = [1, arity, true].map(i => `\${${i}:arg${i}}`);
+                detail = '(' + Array(Number(arity)).fill(0).map((x, i) => `arg${i}`).join(', ') + ')';
             }
             displayText = `${func}/${arity}`;
         }
@@ -225,7 +229,7 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
 
         snippet = snippet.replace(/^:/, '') + "$0";
 
-        let [type, detail] = Array.from((() => {
+        let [type, typeSpec] = Array.from((() => {
             switch (kind) {
                 case 'private_function':
                     return [vscode.CompletionItemKind.Method, 'private'];
