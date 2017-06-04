@@ -32,6 +32,8 @@ export class ElixirSenseSignatureHelpProvider implements vscode.SignatureHelpPro
                 let paramPosition = result.active_param;
                 let pipeBefore = result.pipe_before;
                 let signatures = result.signatures.filter(sig => sig.params.length > paramPosition || sig.params[sig.params.length - 1].includes("\\ []"));
+                if(signatures.length == 0 && result.signatures.length > 0)
+                    signatures = result.signatures.slice(result.signatures.length - 2, 1);
 
                 let vsSigs = this.processSignatures(signatures)
 
