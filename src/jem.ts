@@ -41,6 +41,8 @@ function _decodeValue(dv, i) {
         case 98:
             return [dv.getInt32(i + 1), i + 5];
         case 100:
+        case 118:
+        case 119:
             return _decodeAtom(dv, i + 1);
         case 104:
             return _decodeTuple(dv, i + 1);
@@ -68,12 +70,28 @@ function _encodeNull(dv, i) {
 }
 
 function _decodeAtom(dv, i) {
-    var l = dv.getUint16(i);
-    i += 2;
     var str = "";
-    for (var k = 0; k < l; k++) {
-        str += String.fromCharCode(dv.getUint8(i + k));
+    var atomType = dv.getUint8(i - 1);
+    var k = 0;
+    switch(atomType)
+    {
+        case 118:
+        case 100:
+            var l = dv.getUint16(i);
+            i += 2;
+            for (k = 0; k < l; k++) {
+                str += String.fromCharCode(dv.getUint8(i + k));
+            }
+            break;
+        case 119:
+            var l = dv.getUint8(i);
+            i += 1;
+            for (k = 0; k < l; k++) {
+                str += String.fromCharCode(dv.getUint8(i + k));
+            }
+            break;
     }
+
     var value;
     switch (str) {
         case "nil": value = null; break;
