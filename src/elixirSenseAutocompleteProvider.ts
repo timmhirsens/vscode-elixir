@@ -3,10 +3,7 @@ import { ElixirSenseClient } from './elixirSenseClient';
 
 export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemProvider {
 
-    //elixirSense: ElixirSense;
-
     elixirSenseClient: ElixirSenseClient;
-
 
     constructor(elixirSenseClient: ElixirSenseClient) {
         this.elixirSenseClient = elixirSenseClient;
@@ -14,16 +11,6 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
 
     provideCompletionItems(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken): vscode.CompletionItem[] | Thenable<vscode.CompletionItem[]> {
         return new Promise<vscode.CompletionItem[]>((resolve, reject) => {
-
-            /*
-            let editorElement = atom.views.getView(editor);
-            if (scopeChain.match(/\.string\.quoted\./) || scopeChain.match(/\.comment/)) {
-                if (!Array.from(editorElement.classList).includes('autocomplete-active')) {
-                    return;
-                }
-            }
-            */
-
             let textBeforeCursor: string = document.getText(new vscode.Range(new vscode.Position(position.line, 0), position));
             let prefix = this.getPrefix(textBeforeCursor);
             let pipeBefore = !!textBeforeCursor.match(new RegExp(`\\|>\\s*${prefix}$`));
@@ -155,15 +142,6 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
     }
 
     createSuggestionForAttribute(name, prefix): vscode.CompletionItem {
-        /*
-        let snippet;
-        if (prefix.match(/^@/)) {
-            snippet = name.replace(/^@/, '');
-        } else {
-            snippet = name;
-        }
-        */
-
         return {
             label: name.slice(1),
             insertText: name.slice(1),
@@ -188,7 +166,6 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
             moduleParts = array.slice(0, adjustedLength - 1),
             postfix = array[adjustedLength - 1];
 
-        //let params = [];
         let displayText = '';
         let detail = '';
         let snippet = func;
@@ -196,36 +173,14 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
         spec = spec;
 
         if (signature) {
-            //params = args.map((arg, i) => `\${${i + 1}:${arg.replace(/\s+\\.*$/, '')}}`);
-            //displayText = `${func}(${args.join(', ')})`;
             displayText = `${func}`;
             detail = `(${args.join(', ')})`;
         } else {
             if (Number(arity) > 0) {
-                //params = [1, arity, true].map(i => `\${${i}:arg${i}}`);
                 detail = '(' + Array(Number(arity)).fill(0).map((x, i) => `arg${i}`).join(', ') + ')';
             }
             displayText = `${func}/${arity}`;
         }
-
-        /*
-        let snippetParams = params;
-        if (snippetParams.length > 0 && pipeBefore) {
-            snippetParams = snippetParams.slice(1);
-        }
-
-        if (captureBefore) {
-            snippet = `${func}/${arity}`;
-        } else if (snippetParams.length > 0) {
-            if (config.enableSuggestionSnippet) {
-                snippet = `${func}(${snippetParams.join(', ')})`;
-            } else if (!config.enableSuggestionSnippet && config.addParenthesesAfterSuggestionConfirmed === "addOpeningParenthesis") {
-                snippet = `${func}(`;
-            } else if (!config.enableSuggestionSnippet && config.addParenthesesAfterSuggestionConfirmed === "addParentheses") {
-                snippet = `${func}(\${1})`;
-            }
-        }
-        */
 
         snippet = snippet.replace(/^:/, '') + "$0";
 
@@ -255,17 +210,11 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
         }
 
         return {
-            //func,
-            //arity,
             label: label,
             insertText: insertText,
             kind: type,
             detail: detail,
             documentation: description + (spec ? "\n" + spec : ""),
-            //command: {
-            //    title: ""
-            //    command: "vscode.executeSignatureHelpProvider"
-            //}
         };
     }
 
@@ -289,7 +238,6 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
             displayText = `${func}/${arity}`;
         }
 
-        //snippet = `${func}(${params.join(', ')}) do\n\t\nend\n`;
         snippet = `${func}(${args.join(', ')}) do\n\t\nend\n`;
 
         if (defBefore === 'def') {
@@ -312,16 +260,11 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
         }
 
         return {
-            //func,
-            //arity,
-            //snippet,
             label: displayText,
             kind: vscode.CompletionItemKind.Value,
             detail: detail,
             insertText: snippet,
             documentation: description + (spec ? "\n" + spec : ""),
-            //spec,
-            //summary: description
         };
     }
 
