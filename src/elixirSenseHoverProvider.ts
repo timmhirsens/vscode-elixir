@@ -37,18 +37,6 @@ export class ElixirSenseHoverProvider implements vscode.HoverProvider {
                 resolve(hover);
 
             });
-
-            /*
-            this.server.getDocumentation(document, position, (hover: vscode.Hover) => {
-                if (!token.isCancellationRequested) {
-                    resolve(hover);
-                } else {
-                    console.error('rejecting');
-                    reject();
-                }
-            });
-            */
-
         });
     }
 }
