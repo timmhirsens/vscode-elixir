@@ -1,3 +1,10 @@
+### v0.5.0: 13 Jun 2017
+ - Switched to using Elixir Sense for autocomplete/intellisense.
+   If your are having issues with the new implmentation you can switch back to the old one by setting the property
+   `elixir.useElixirSense` to `false`
+
+   This feature was implemented by [PotterDai](https://github.com/PotterDai)
+
 ### v0.4.1: 04 May 2017
   - Problem matchers for compile warnings fixed
 

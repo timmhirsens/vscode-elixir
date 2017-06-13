@@ -28,7 +28,9 @@ There currently is no option to change the path of the `elixir` executable. If y
 
 ### Autocomplete
 
-Autocomplete/Intellisense is implemented using an older version of [alchemist-server](https://github.com/tonini/alchemist-server) with some patches applied. For the auto complete to work properly, you will have to recompile your source code from time to time (using `mix compile`) for it to pick up the latest changes to your source code.
+Autocomplete/Intellisense is implemented using the wonderful [ElixirSense](https://github.com/msaraiva/elixir_sense) project. For the auto complete to work properly, you will have to recompile your source code from time to time (using `mix compile`) for it to pick up the latest changes to your source code.
+
+If your are having issues with the new implmentation you can switch back to the old one (alchemist server) by setting the property `elixir.useElixirSense` to `false`
 
 ### Problem Reporting
 
@@ -76,6 +78,7 @@ See https://go.microsoft.com/fwlink/?LinkId=733558 for the documentation about t
 These wonderful people have so far contributed to this extension. Feel free to add your name here:
 
 * [mat-mcloughlin](https://github.com/mat-mcloughlin)
+* [PotterDai](https://github.com/PotterDai)
 * [Fahrradflucht](https://github.com/Fahrradflucht)
 * [bill-mybiz](https://github.com/bill-mybiz)
 * [securingsincit](https://github.com/securingsincity)
