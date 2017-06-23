@@ -135,5 +135,11 @@
 		"body": "require $0",
 		"description": "require",
 		"scope": "source.elixir"
+	},
+	"pry": {
+		"prefix": "pry",
+		"body": "require IEx\nIEx.pry",
+		"description": "IEx.pry",
+		"scope": "source.elixir"
 	}
 }
