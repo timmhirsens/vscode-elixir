@@ -10,7 +10,7 @@
         "comment-format": [true,
             "check-space"
         ],
-        "curly":[true, "ignore-same-line"],
+        "curly": [true, "ignore-same-line"],
         "indent": [true,
             "spaces"
         ],
@@ -29,9 +29,9 @@
         "no-internal-module": true,
         "no-null-keyword": true,
         "no-switch-case-fall-through": true,
-        "no-trailing-whitespace": [true, "ignore-template-strings"],
+        "no-trailing-whitespace": true,
         "no-type-assertion-whitespace": true,
-        "no-unused-variable": [true, {"ignore-pattern": "^_"}],
+        "no-unused-variable": true,
         "no-var-keyword": true,
         "object-literal-shorthand": true,
         "object-literal-sort-keys": false,

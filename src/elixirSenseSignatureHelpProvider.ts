@@ -9,13 +9,13 @@ export class ElixirSenseSignatureHelpProvider implements vscode.SignatureHelpPro
         return new Promise((resolve, reject) => {
 
             if (!this.elixirSenseClient) {
-                console.log("ElixirSense client not ready");
+                console.log('ElixirSense client not ready');
                 console.error('rejecting');
                 reject();
                 return;
             }
 
-            this.elixirSenseClient.send("signature", { buffer: document.getText(), line: position.line + 1, column: position.character + 1 }, result => {
+            this.elixirSenseClient.send('signature', { buffer: document.getText(), line: position.line + 1, column: position.character + 1 }, result => {
 
                 if (token.isCancellationRequested) {
                     console.error('rejecting');
@@ -35,13 +35,13 @@ export class ElixirSenseSignatureHelpProvider implements vscode.SignatureHelpPro
                 if(signatures.length == 0 && result.signatures.length > 0)
                 {
                     signatures = result.signatures.slice(result.signatures.length - 1, result.signatures.length);
-                    if(signatures[0].params[signatures[0].params.length - 1].includes("\\ []"))
+                    if(signatures[0].params[signatures[0].params.length - 1].includes('\\ []'))
                         paramPosition = signatures[0].params.length - 1;
                 }
 
-                let vsSigs = this.processSignatures(signatures)
+                let vsSigs = this.processSignatures(signatures);
 
-                let sig = new vscode.SignatureHelp();
+                const sig = new vscode.SignatureHelp();
                 sig.activeParameter = paramPosition;
                 sig.activeSignature = 0;
                 sig.signatures = vsSigs;
@@ -56,13 +56,13 @@ export class ElixirSenseSignatureHelpProvider implements vscode.SignatureHelpPro
     }
 
     genSignatureInfo(signature): vscode.SignatureInformation {
-        let si = new vscode.SignatureInformation(signature.name + "(" + signature.params.join(", ") + ")", signature.documentation + '\n' + signature.spec);
+        const si = new vscode.SignatureInformation(signature.name + '(' + signature.params.join(', ') + ')', signature.documentation + '\n' + signature.spec);
         si.parameters = Array.from(signature.params).map(p => this.genParameterInfo(p));
         return si;
     }
 
     genParameterInfo(param): vscode.ParameterInformation {
-        let pi = new vscode.ParameterInformation(param);
+        const pi = new vscode.ParameterInformation(param);
         return pi;
     }
 }

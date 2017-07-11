@@ -1,6 +1,6 @@
-import * as vscode from 'vscode';
 import * as cp from 'child_process';
 import * as path from 'path';
+import * as vscode from 'vscode';
 
 export class ElixirServer {
     p: cp.ChildProcess;
@@ -14,7 +14,7 @@ export class ElixirServer {
     resultCallback: Function;
 
     constructor() {
-        const extensionPath: string = vscode.extensions.getExtension("mjmcloug.vscode-elixir").extensionPath;
+        const extensionPath: string = vscode.extensions.getExtension('mjmcloug.vscode-elixir').extensionPath;
         this.command = 'elixir';
         this.args = [path.join(extensionPath, 'alchemist-server/run.exs')];
         this.env = 'dev';
@@ -23,7 +23,7 @@ export class ElixirServer {
     }
 
     start() {
-        let projectPath: string = "";
+        let projectPath = '';
         if (vscode.workspace.rootPath !== undefined) {
             projectPath = path.join(vscode.workspace.rootPath);
         } else {
@@ -34,13 +34,13 @@ export class ElixirServer {
                 projectPath = path.dirname(savedFiles[0].fileName);
             } else {
                 // Bail out, lets use our extensionPath as projectPath
-                projectPath = vscode.extensions.getExtension("mjmcloug.vscode-elixir").extensionPath;
+                projectPath = vscode.extensions.getExtension('mjmcloug.vscode-elixir').extensionPath;
             }
         }
         const optionsWin = { cwd: projectPath, windowsVerbatimArguments: true, stdio: 'pipe' };
         const optionsUnix = { cwd: projectPath, stdio: 'pipe' };
         if (process.platform === 'win32') {
-            const windowsPath = "\"" + this.args + "\"";
+            const windowsPath = '"' + this.args + '"';
             this.p = cp.spawn('cmd', ['/s', '/c', '"' + [this.command].concat(windowsPath).concat(this.env).join(' ') + '"'], optionsWin);
         }
         else {
@@ -83,21 +83,6 @@ export class ElixirServer {
                 this.ready = true;
             }
         });
-    }
-
-    private sendRequest(type: string, command: string, cb: Function): void {
-        if (!this.busy && this.ready) {
-            this.lastRequestType = type;
-            if (process.platform === 'win32') {
-                command = command.replace(/\\/g, '/');
-            }
-            console.log('[vscode-elixir] cmd: ', command);
-            this.busy = true;
-            this.resultCallback = cb;
-            this.p.stdin.write(command);
-        } else {
-            console.log('[vscode-elixir] server is busy / not ready');
-        }
     }
 
     getDefinition(document: vscode.TextDocument, position: vscode.Position, callback: Function): void {
@@ -192,6 +177,26 @@ export class ElixirServer {
         this.sendRequest('COMP', command, resultCb);
     }
 
+    stop() {
+        console.log('[vscode-elixir] stopping server')
+        this.p.stdin.end();
+    }
+
+    private sendRequest(type: string, command: string, cb: Function): void {
+        if (!this.busy && this.ready) {
+            this.lastRequestType = type;
+            if (process.platform === 'win32') {
+                command = command.replace(/\\/g, '/');
+            }
+            console.log('[vscode-elixir] cmd: ', command);
+            this.busy = true;
+            this.resultCallback = cb;
+            this.p.stdin.write(command);
+        } else {
+            console.log('[vscode-elixir] server is busy / not ready');
+        }
+    }
+
     private createCompletion(hint: string, line: string, isErlangModule = false) {
         const suggestion = line.split(';');
         const completionItem = new vscode.CompletionItem(suggestion[0]);
@@ -240,10 +245,5 @@ export class ElixirServer {
             completionItem.label = prefix + name;
         }
         return completionItem;
-    }
-
-    stop() {
-        console.log('[vscode-elixir] stopping server')
-        this.p.stdin.end();
     }
 }
