@@ -170,7 +170,8 @@
         "build": "vsce package"
     },
     "devDependencies": {
-        "typescript": "^2.0.3",
+        "tslint": "^5.5.0",
+        "typescript": "^2.1.0",
         "vscode": "^1.0.0",
         "mocha": "^2.3.3",
         "vsce": "^1.22.0",

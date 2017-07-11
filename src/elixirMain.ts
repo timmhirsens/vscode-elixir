@@ -1,36 +1,35 @@
 import * as vscode from 'vscode';
 import { ElixirAutocomplete } from './elixirAutocomplete';
-import { ElixirServer } from './elixirServer';
+import { configuration } from './elixirConfiguration';
 import { ElixirDefinitionProvider } from './elixirDefinitionProvider';
 import { ElixirHoverProvider } from './elixirHoverProvider';
-import { configuration } from './elixirConfiguration';
-//Elixir-Sense
-import { ElixirSenseServerProcess } from './elixirSenseServerProcess';
-import { ElixirSenseClient } from './elixirSenseClient';
 import { ElixirSenseAutocompleteProvider } from './elixirSenseAutocompleteProvider';
+import { ElixirSenseClient } from './elixirSenseClient';
 import { ElixirSenseDefinitionProvider } from './elixirSenseDefinitionProvider';
 import { ElixirSenseHoverProvider } from './elixirSenseHoverProvider';
+// Elixir-Sense
+import { ElixirSenseServerProcess } from './elixirSenseServerProcess';
 import { ElixirSenseSignatureHelpProvider } from './elixirSenseSignatureHelpProvider';
+import { ElixirServer } from './elixirServer';
 
 const ELIXIR_MODE: vscode.DocumentFilter = { language: 'elixir', scheme: 'file' };
 let elixirServer: ElixirServer;
-//Elixir-Sense
+// Elixir-Sense
 let useElixirSense: boolean;
 let elixirSenseServer: ElixirSenseServerProcess;
 let elixirSenseClient: ElixirSenseClient;
 
-
 export function activate(ctx: vscode.ExtensionContext) {
-    let elixirSetting = vscode.workspace.getConfiguration('elixir');
+    const elixirSetting = vscode.workspace.getConfiguration('elixir');
     useElixirSense = elixirSetting.useElixirSense;
 
     if (useElixirSense) {
         ElixirSenseServerProcess.initClass();
-        //TODO: detect environment automatically.
-        let env = elixirSetting.elixirEnv;
-        let projectPath = vscode.workspace.rootPath;
-        elixirSenseServer = new ElixirSenseServerProcess(vscode.workspace.rootPath, function (host, port, auth_token) {
-            elixirSenseClient = new ElixirSenseClient(host, port, auth_token, env, projectPath);
+        // TODO: detect environment automatically.
+        const env = elixirSetting.elixirEnv;
+        const projectPath = vscode.workspace.rootPath;
+        elixirSenseServer = new ElixirSenseServerProcess(vscode.workspace.rootPath, (host, port, authToken) => {
+            elixirSenseClient = new ElixirSenseClient(host, port, authToken, env, projectPath);
             ctx.subscriptions.push(vscode.languages.registerCompletionItemProvider(ELIXIR_MODE, new ElixirSenseAutocompleteProvider(elixirSenseClient), '.', '{', '@'));
             ctx.subscriptions.push(vscode.languages.registerDefinitionProvider(ELIXIR_MODE, new ElixirSenseDefinitionProvider(elixirSenseClient)));
             ctx.subscriptions.push(vscode.languages.registerHoverProvider(ELIXIR_MODE, new ElixirSenseHoverProvider(elixirSenseClient)));
