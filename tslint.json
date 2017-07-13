@@ -1,5 +1,5 @@
 {
-    "defaultSeverity": "error",
+    "defaultSeverity": "warning",
     "extends": [
         "tslint:recommended"
     ],
@@ -10,12 +10,13 @@
         "comment-format": [true,
             "check-space"
         ],
-        "curly": [true, "ignore-same-line"],
+        "curly": true,
         "indent": [true,
             "spaces"
         ],
         "jsdoc-format": true,
         "linebreak-style": [true, "LF"],
+        "max-line-length": [true, 160],
         "member-access": false,
         "next-line": [true,
             "check-catch",

@@ -22,7 +22,7 @@ export class ElixirSenseClient {
     constructor(host, port, authToken, env, projectPath) {
         this.host = host;
         this.port = port.trim();
-        this.auth_token = authToken.trim();
+        this.auth_token = authToken ? authToken.trim() : undefined;
         this.projectPath = projectPath;
         this.env = env;
 
@@ -143,7 +143,7 @@ export class ElixirSenseClient {
         this.client.write(new Buffer(packet));
     }
 
-    send(request, payload, onResult) {
+    send(request: string, payload, onResult) {
         this.lastRequestId = this.lastRequestId + 1;
         this.requests[this.lastRequestId] = onResult;
         this.write({

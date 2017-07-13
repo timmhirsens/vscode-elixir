@@ -1,27 +1,26 @@
 // The code
 // API
+// tslint:disable:no-var-keyword no-null-keyword prefer-const prefer-for-of
 export function encode(obj, mtu = 500000) {
-    let dv = new DataView(new ArrayBuffer(mtu));
+
+    var dv = new DataView(new ArrayBuffer(mtu));
     dv.setUint8(0, 131);
-    const [v, i] = _encodeValue(obj, dv, 1);
+    var [v, i] = _encodeValue(obj, dv, 1);
     dv = v as DataView;
     return dv.buffer.slice(0, i);
 }
 
 export function decode(buffer) {
-    const dv = new DataView(buffer);
+    var dv = new DataView(buffer);
     if (dv.getUint8(0) !== 131) {
-        // tslint:disable-next-line:no-string-throw
-        throw 'badarg';
+        throw new Error('badarg');
     }
-    else {
-        return _decodeValue(dv, 1)[0];
-    }
+    return _decodeValue(dv, 1)[0];
 }
 
 // Internal functions
 function _encodeValue(value, dv, i) {
-    if (value === null) {
+    if (value === undefined) {
         return _encodeNull(dv, i);
     }
     else {
@@ -58,8 +57,7 @@ function _decodeValue(dv, i) {
         case 116:
             return _decodeObject(dv, i + 1);
         default:
-            // tslint:disable-next-line:no-string-throw
-            throw 'bad_tag: ' + dv.getUint8(i);
+            throw new Error('bad_tag: ' + dv.getUint8(i));
     }
 }
 
@@ -74,20 +72,21 @@ function _encodeNull(dv, i) {
 }
 
 function _decodeAtom(dv, i) {
-    let str = '';
-    const atomType = dv.getUint8(i - 1);
-    let k = 0;
-    switch (atomType) {
+    var str = '';
+    var atomType = dv.getUint8(i - 1);
+    var k = 0;
+    switch (atomType)
+    {
         case 118:
         case 100:
-            let l = dv.getUint16(i);
+            var l = dv.getUint16(i);
             i += 2;
             for (k = 0; k < l; k++) {
                 str += String.fromCharCode(dv.getUint8(i + k));
             }
             break;
         case 119:
-            let l = dv.getUint8(i);
+            var l = dv.getUint8(i);
             i += 1;
             for (k = 0; k < l; k++) {
                 str += String.fromCharCode(dv.getUint8(i + k));
@@ -95,9 +94,8 @@ function _decodeAtom(dv, i) {
             break;
     }
 
-    let value;
+    var value;
     switch (str) {
-        // tslint:disable-next-line:no-null-keyword
         case 'nil': value = null; break;
         case 'true': value = true; break;
         case 'false': value = false; break;
@@ -110,26 +108,26 @@ function _encodeObject(obj, dv, i) {
     dv = _getDataView(dv, i, 5);
     dv.setUint8(i, 116);
     i += 1;
-    const keys = Object.keys(obj);
-    const l = keys.length;
+    var keys = Object.keys(obj);
+    var l = keys.length
     dv.setUint32(i, l);
     i += 4;
-    for (let k = 0; k < l; k++) {
-        const key = keys[k];
-        let [dv, i] = _encodeString(key, dv, i);
-        const [dv, i] = _encodeValue(obj[key], dv, i);
+    for (var k = 0; k < l; k++) {
+        var key = keys[k];
+        var [dv, i] = _encodeString(key, dv, i);
+        var [dv, i] = _encodeValue(obj[key], dv, i);
     }
     return [dv, i];
 }
 
 function _decodeObject(dv, i) {
-    const l = dv.getUint32(i);
+    var l = dv.getUint32(i);
     i += 4;
-    const obj = {};
-    for (let k = 0; k < l; k++) {
+    var obj = {};
+    for (var k = 0; k < l; k++) {
         // var [key, i] = _decodeString(dv, i + 1);
-        const [key, i] = _decodeAtom(dv, i + 1);
-        const [value, i] = _decodeValue(dv, i);
+        var [key, i] = _decodeAtom(dv, i + 1);
+        var [value, i] = _decodeValue(dv, i);
         obj[key] = value;
     }
     return [obj, i];
@@ -163,11 +161,11 @@ function _encodeArray(arr, dv, i) {
     dv = _getDataView(dv, i, 5);
     dv.setUint8(i, 108);
     i += 1;
-    const l = arr.length;
+    var l = arr.length;
     dv.setUint32(i, l);
     i += 4;
-    for (let k = 0; k < l; k++) {
-        const [dv, i] = _encodeValue(arr[k], dv, i);
+    for (var k = 0; k < l; k++) {
+        var [dv, i] = _encodeValue(arr[k], dv, i);
     }
     dv = _getDataView(dv, i, 1);
     dv.setUint8(i, 106);
@@ -175,56 +173,56 @@ function _encodeArray(arr, dv, i) {
 }
 
 function _decodeTuple(dv, i) {
-    const l = dv.getUint8(i);
+    var l = dv.getUint8(i);
     i += 1;
-    const arr = [];
-    for (let k = 0; k < l; k++) {
-        const [value, i] = _decodeValue(dv, i);
+    var arr = [];
+    for (var k = 0; k < l; k++) {
+        var [value, i] = _decodeValue(dv, i);
         arr[k] = value;
     }
     return [arr, i + 1];
 }
 
 function _decodeArray(dv, i) {
-    const l = dv.getUint32(i);
+    var l = dv.getUint32(i);
     i += 4;
-    const arr = [];
-    for (let k = 0; k < l; k++) {
-        const [value, i] = _decodeValue(dv, i);
+    var arr = [];
+    for (var k = 0; k < l; k++) {
+        var [value, i] = _decodeValue(dv, i);
         arr[k] = value;
     }
     return [arr, i + 1];
 }
 
 function _encodeString(str, dv, i) {
-    const arr = stringToUint(str);
-    const l = arr.length;
+    var arr = stringToUint(str);
+    var l = arr.length;
     dv = _getDataView(dv, i, l + 5);
     dv.setUint8(i, 109);
     i += 1;
     dv.setUint32(i, l);
     i += 4;
-    for (let k = 0; k < l; k++) {
+    for (var k = 0; k < l; k++) {
         dv.setUint8(i + k, arr[k]);
     }
     return [dv, i + k];
 }
 
 function _decodeString(dv, i) {
-    const l = dv.getUint32(i);
+    var l = dv.getUint32(i);
     i += 4;
-    const arr = [];
-    for (let k = 0; k < l; k++) {
+    var arr = [];
+    for (var k = 0; k < l; k++) {
         arr.push(dv.getUint8(i + k));
     }
     return [uintToString(arr), i + k];
 }
 
 function stringToUint(str) {
-    const strVal = unescape(encodeURIComponent(str));
-    const charList = strVal.split('');
-    const uintArray = [];
-    for (let i = 0; i < charList.length; i++) {
+    var strVal = unescape(encodeURIComponent(str));
+    var charList = strVal.split('');
+    var uintArray = [];
+    for (var i = 0; i < charList.length; i++) {
         uintArray.push(charList[i].charCodeAt(0));
     }
     return new Uint8Array(uintArray);
@@ -263,7 +261,7 @@ function _getDataView(dv, i, l) {
 }
 
 function _expandBuffer(buffer, minLength) {
-    const tempArr = new Uint8Array(Math.max(minLength, buffer.length * 2));
+    var tempArr = new Uint8Array(Math.max(minLength, buffer.length * 2));
     tempArr.set(buffer, 0);
     return tempArr.buffer;
 }

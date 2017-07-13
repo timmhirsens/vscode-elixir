@@ -50,11 +50,9 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
     getDefBefore(textBeforeCursor: string, prefix: string): string {
         if (textBeforeCursor.match(new RegExp(`def\\s*${prefix}$`))) {
             return 'def';
-        }
-        else if (textBeforeCursor.match(new RegExp(`defmacro\\s*${prefix}$`))) {
+        } else if (textBeforeCursor.match(new RegExp(`defmacro\\s*${prefix}$`))) {
             return 'defmacro';
-        }
-        return '';
+        } else return '';
     }
 
     getPrefix(textBeforeCursor: string): string {
@@ -69,48 +67,37 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
         return '';
     }
 
-    processSuggestionResult(
-        prefix: string,
-        pipeBefore: boolean,
-        captureBefore: boolean,
-        defBefore: string,
-        suggestionResult)
-    : vscode.CompletionItem[] {
-        const hint = suggestionResult[0].value;
-        const suggestions = suggestionResult.slice(1);
-        const modulesToAdd: string[] = [];
-        const lastModuleHint: string;
-        const isPrefixFunctionCall: boolean = !!(prefix.match(/\.[^A-Z][^\.]*$/) || prefix.match(/^[^A-Z:][^\.]*$/));
-
-        if (prefix !== '' && !isPrefixFunctionCall) {
+    getModulesToAdd(prefix: string): string[] {
+        const matchesWordEnd = prefix.match(/\.[^A-Z][^\.]*$/);
+        const matchesNonWordEnd = prefix.match(/^[^A-Z:][^\.]*$/);
+        const isPrefixFunctionCall = !!(matchesWordEnd || matchesNonWordEnd);
+        if (prefix !== '' && isPrefixFunctionCall) {
             const prefixModules = prefix.split('.').slice(0, -1);
-            const hintModules = hint.split('.').slice(0, -1);
-
-            modulesToAdd = Array.from(prefixModules);
-
-            if (prefix.slice(-1)[0] !== '.' || `${prefixModules}` !== `${hintModules}`) {
-                for (let i = 0; i < hintModules.length; i++) {
-                    const m = hintModules[i];
-                    if (m !== prefixModules[i]) {
-                        modulesToAdd.push(m);
-                    }
-                }
-            }
-
-            if (modulesToAdd.length > 0) {
-                lastModuleHint = modulesToAdd[modulesToAdd.length - 1];
-            }
-
+            return Array.from(prefixModules);
         }
+        return [];
+    }
 
-        suggestions = this.sortSuggestions(suggestions).map((serverSuggestion, index) => {
+    processSuggestionResult(prefix: string, isPipeBefore: boolean, isCaptureBefore: boolean, autoCompleteKeyword: string, suggestionResult): vscode.CompletionItem[] {
+
+        const hint = suggestionResult[0].value;
+        const modulesToAdd = this.getModulesToAdd(prefix);
+        const unsortedSuggestions = suggestionResult.slice(1);
+        const hintModules = hint.split('.').slice(0, -1);
+        const isModulesToAddEmpty = modulesToAdd.length > 0;
+        const lastModuleHint = isModulesToAddEmpty ? modulesToAdd[modulesToAdd.length - 1] : '';
+
+        const suggestions = this.sortSuggestions(unsortedSuggestions)
+        .map((serverSuggestion, index) => {
             const { name } = serverSuggestion;
-            if (lastModuleHint && Array.from<string>([name, `:${name}`]).findIndex(i => i == lastModuleHint) == -1 && modulesToAdd.length > 0) {
+            const nameArray = Array.from([name, `:${name}`]);
+            const islastModuleHintNotInNameArray = nameArray.findIndex((i) => i === lastModuleHint) === -1;
+            if (isModulesToAddEmpty && islastModuleHintNotInNameArray) {
                 serverSuggestion.name = modulesToAdd.join('.') + '.' + name;
             }
-            return this.createSuggestion(serverSuggestion, index, prefix, pipeBefore, captureBefore, defBefore);
-        }).filter(function(item: vscode.CompletionItem) {
-            return item && item.label !== '';
+            return this.createSuggestion(serverSuggestion, index, prefix, isPipeBefore, isCaptureBefore, autoCompleteKeyword);
+        }).filter((item: vscode.CompletionItem) => {
+            return item !== null && item.label !== '';
         });
 
         return suggestions;
@@ -123,6 +110,7 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
         pipeBefore: boolean,
         captureBefore: boolean,
         defBefore: string) {
+        // tslint:disable-next-line:one-variable-per-declaration
         let desc, kind, mod, name, signature, snippet, spec, subtype;
         if (serverSuggestion.type === 'module') {
             [name, kind, subtype, desc] = Array.from([serverSuggestion.name, serverSuggestion.type, serverSuggestion.subtype, serverSuggestion.summary]);
