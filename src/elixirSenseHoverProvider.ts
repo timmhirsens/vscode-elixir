@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-//import { ElixirSense } from './elixirSense';
 import { ElixirSenseClient } from './elixirSenseClient';
 
 export class ElixirSenseHoverProvider implements vscode.HoverProvider {
@@ -10,13 +9,18 @@ export class ElixirSenseHoverProvider implements vscode.HoverProvider {
         return new Promise((resolve, reject) => {
 
             if (!this.elixirSenseClient) {
-                console.log("ElixirSense client not ready");
+                console.log('ElixirSense client not ready');
                 console.error('rejecting');
                 reject();
                 return;
             }
+            const payload = {
+                buffer : document.getText(),
+                line   : position.line + 1,
+                column : position.character + 1
+            };
 
-            this.elixirSenseClient.send("docs", { buffer: document.getText(), line: position.line + 1, column: position.character + 1 }, result => {
+            this.elixirSenseClient.getDocuments(payload, (result) => {
 
                 if (token.isCancellationRequested) {
                     console.error('rejecting');
@@ -24,7 +28,7 @@ export class ElixirSenseHoverProvider implements vscode.HoverProvider {
                     return;
                 }
 
-                let { actual_subject, docs } = result;
+                const { actual_subject, docs } = result;
 
                 if (!docs) {
                     console.error('rejecting');
