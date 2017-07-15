@@ -10,8 +10,9 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
     }
 
     provideCompletionItems(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken)
-    : vscode.CompletionItem[] | Thenable<vscode.CompletionItem[]> {
+    : Thenable<vscode.CompletionItem[]> {
         return new Promise<vscode.CompletionItem[]>((resolve, reject) => {
+            const buffer = document.getText();
             const documentText = new vscode.Range(new vscode.Position(position.line, 0), position);
             const textBeforeCursor = document.getText(documentText);
             const prefix = this.getPrefix(textBeforeCursor);
@@ -31,11 +32,13 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
                 reject();
                 return;
             }
+            const payload = {
+                buffer : document.getText(),
+                line   : position.line + 1,
+                column : position.character + 1
+            };
 
-            this.elixirSenseClient.send(
-            'suggestions',
-            { buffer: document.getText(), line: position.line + 1, column: position.character + 1 },
-            (result) => {
+            this.elixirSenseClient.getSuggestions(payload, (result) => {
                 if (!token.isCancellationRequested) {
                     const rst = this.processSuggestionResult(prefix, pipeBefore, captureBefore, defBefore, result);
                     resolve(rst);
@@ -52,7 +55,8 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
             return 'def';
         } else if (textBeforeCursor.match(new RegExp(`defmacro\\s*${prefix}$`))) {
             return 'defmacro';
-        } else return '';
+        }
+        return '';
     }
 
     getPrefix(textBeforeCursor: string): string {
@@ -78,7 +82,8 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
         return [];
     }
 
-    processSuggestionResult(prefix: string, isPipeBefore: boolean, isCaptureBefore: boolean, autoCompleteKeyword: string, suggestionResult): vscode.CompletionItem[] {
+    processSuggestionResult(prefix: string, isPipeBefore: boolean, isCaptureBefore: boolean, autoCompleteKeyword: string, suggestionResult)
+    : vscode.CompletionItem[] {
 
         const hint = suggestionResult[0].value;
         const modulesToAdd = this.getModulesToAdd(prefix);
@@ -97,7 +102,7 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
             }
             return this.createSuggestion(serverSuggestion, index, prefix, isPipeBefore, isCaptureBefore, autoCompleteKeyword);
         }).filter((item: vscode.CompletionItem) => {
-            return item !== null && item.label !== '';
+            return item !== undefined && item.label !== '';
         });
 
         return suggestions;
@@ -113,7 +118,7 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
         // tslint:disable-next-line:one-variable-per-declaration
         let desc, kind, mod, name, signature, snippet, spec, subtype;
         if (serverSuggestion.type === 'module') {
-            [name, kind, subtype, desc] = Array.from([serverSuggestion.name, serverSuggestion.type, serverSuggestion.subtype, serverSuggestion.summary]);
+            [name, kind, subtype, desc] = [serverSuggestion.name, serverSuggestion.type, serverSuggestion.subtype, serverSuggestion.summary];
         } else if (serverSuggestion.type === 'return') {
             [name, kind, spec, snippet] = Array.from([serverSuggestion.description, serverSuggestion.type, serverSuggestion.spec, serverSuggestion.snippet]);
         } else {

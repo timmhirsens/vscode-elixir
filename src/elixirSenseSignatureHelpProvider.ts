@@ -14,8 +14,13 @@ export class ElixirSenseSignatureHelpProvider implements vscode.SignatureHelpPro
                 reject();
                 return;
             }
+            const payload = {
+                buffer : document.getText(),
+                line   : position.line + 1,
+                column : position.character + 1
+            };
 
-            this.elixirSenseClient.send('signature', { buffer: document.getText(), line: position.line + 1, column: position.character + 1 }, result => {
+            this.elixirSenseClient.getSignature(payload, (result) => {
 
                 if (token.isCancellationRequested) {
                     console.error('rejecting');
@@ -30,34 +35,33 @@ export class ElixirSenseSignatureHelpProvider implements vscode.SignatureHelpPro
                 }
 
                 let paramPosition = result.active_param;
-                let pipeBefore = result.pipe_before;
-                let signatures = result.signatures.filter(sig => sig.params.length > paramPosition);
-                if(signatures.length == 0 && result.signatures.length > 0)
-                {
+                const pipeBefore = result.pipe_before;
+                let signatures = result.signatures.filter((sig) => sig.params.length > paramPosition);
+                if (signatures.length === 0 && result.signatures.length > 0) {
                     signatures = result.signatures.slice(result.signatures.length - 1, result.signatures.length);
-                    if(signatures[0].params[signatures[0].params.length - 1].includes('\\ []'))
+                    if (signatures[0].params[signatures[0].params.length - 1].includes('\\ []')) {
                         paramPosition = signatures[0].params.length - 1;
+                    }
                 }
+                const vsSigs = this.processSignatures(signatures);
 
-                let vsSigs = this.processSignatures(signatures);
+                const signatureHelper = new vscode.SignatureHelp();
+                signatureHelper.activeParameter = paramPosition;
+                signatureHelper.activeSignature = 0;
+                signatureHelper.signatures = vsSigs;
 
-                const sig = new vscode.SignatureHelp();
-                sig.activeParameter = paramPosition;
-                sig.activeSignature = 0;
-                sig.signatures = vsSigs;
-
-                resolve(sig);
+                resolve(signatureHelper);
             });
         });
     }
 
     processSignatures(signatures): vscode.SignatureInformation[] {
-        return Array.from(signatures).map(s => this.genSignatureInfo(s));
+        return Array.from(signatures).map((s) => this.genSignatureInfo(s));
     }
 
     genSignatureInfo(signature): vscode.SignatureInformation {
         const si = new vscode.SignatureInformation(signature.name + '(' + signature.params.join(', ') + ')', signature.documentation + '\n' + signature.spec);
-        si.parameters = Array.from(signature.params).map(p => this.genParameterInfo(p));
+        si.parameters = Array.from(signature.params).map((p) => this.genParameterInfo(p));
         return si;
     }
 

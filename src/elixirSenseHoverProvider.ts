@@ -14,8 +14,13 @@ export class ElixirSenseHoverProvider implements vscode.HoverProvider {
                 reject();
                 return;
             }
+            const payload = {
+                buffer : document.getText(),
+                line   : position.line + 1,
+                column : position.character + 1
+            };
 
-            this.elixirSenseClient.send('docs', { buffer: document.getText(), line: position.line + 1, column: position.character + 1 }, (result) => {
+            this.elixirSenseClient.getDocuments(payload, (result) => {
 
                 if (token.isCancellationRequested) {
                     console.error('rejecting');

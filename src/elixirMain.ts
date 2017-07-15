@@ -17,11 +17,13 @@ let elixirSenseClient: ElixirSenseClient;
 export function activate(ctx: vscode.ExtensionContext) {
     const elixirSetting = vscode.workspace.getConfiguration('elixir');
 
-    ElixirSenseServerProcess.initClass();
     // TODO: detect environment automatically.
     const env = elixirSetting.elixirEnv;
     const projectPath = vscode.workspace.rootPath;
     elixirSenseServer = new ElixirSenseServerProcess(vscode.workspace.rootPath, (host, port, authToken) => {
+        console.log('host ', host);
+        console.log('host ', port);
+        console.log('host ', authToken);
         elixirSenseClient = new ElixirSenseClient(host, port, authToken, env, projectPath);
         const autoCompleteProvider = new ElixirSenseAutocompleteProvider(elixirSenseClient);
         const definitionProvider = new ElixirSenseDefinitionProvider(elixirSenseClient);

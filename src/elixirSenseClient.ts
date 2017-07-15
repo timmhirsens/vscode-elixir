@@ -1,6 +1,8 @@
 import * as net from 'net';
 import * as Jem from './jem';
 
+type Request = 'signature' | 'docs' | 'definition' | 'suggestions' | 'expand_full' | 'set_context';
+
 export class ElixirSenseClient {
 
     projectPath: string;
@@ -21,7 +23,7 @@ export class ElixirSenseClient {
 
     constructor(host, port, authToken, env, projectPath) {
         this.host = host;
-        this.port = port.trim();
+        this.port = port ? port.trim() : '';
         this.auth_token = authToken ? authToken.trim() : undefined;
         this.projectPath = projectPath;
         this.env = env;
@@ -36,6 +38,22 @@ export class ElixirSenseClient {
         this.packetBufferView = undefined;
 
         this.initClient();
+    }
+
+    getDefinition(payload: object, onResult: (result) => any) {
+        this.send('definition', payload, onResult);
+    }
+
+    getSignature(payload: object, onResult: (result) => any) {
+        this.send('signature', payload, onResult);
+    }
+
+    getDocuments(payload: object, onResult: (result) => any) {
+        this.send('docs', payload, onResult);
+    }
+
+    getSuggestions(payload: object, onResult: (result) => any) {
+        this.send('suggestions', payload, onResult);
     }
 
     initClient() {
@@ -133,27 +151,6 @@ export class ElixirSenseClient {
         this.packetBufferView = new DataView(this.packetBuffer);
     }
 
-    write(data) {
-        const encoded = Jem.encode(data);
-        const header = createHeader(encoded);
-        const body = new Buffer(encoded);
-        const packet = new Uint8Array(header.length + encoded.byteLength);
-        packet.set(header, 0);
-        packet.set(body, header.length);
-        this.client.write(new Buffer(packet));
-    }
-
-    send(request: string, payload, onResult) {
-        this.lastRequestId = this.lastRequestId + 1;
-        this.requests[this.lastRequestId] = onResult;
-        this.write({
-            request_id: this.lastRequestId,
-            auth_token: this.auth_token,
-            request,
-            payload
-        });
-    }
-
     setContext(env, cwd) {
         this.send('set_context', { env, cwd }, (result) => {
             if (result[0] !== this.env) {
@@ -165,6 +162,25 @@ export class ElixirSenseClient {
             }
             this.projectPath = result[1];
         });
+    }
+
+    private send(request: Request, payload: object, onResult) {
+        this.lastRequestId++;
+        this.requests[this.lastRequestId] = onResult;
+        const auth_token = this.auth_token;
+        // tslint:disable-next-line:variable-name
+        const request_id = this.lastRequestId;
+        this.write({request_id, auth_token, request, payload });
+    }
+
+    private write(data) {
+        const encoded = Jem.encode(data);
+        const header = createHeader(encoded);
+        const body = new Buffer(encoded);
+        const packet = new Uint8Array(header.length + encoded.byteLength);
+        packet.set(header, 0);
+        packet.set(body, header.length);
+        this.client.write(new Buffer(packet));
     }
 }
 

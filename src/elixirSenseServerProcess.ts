@@ -2,78 +2,77 @@ import { spawn } from 'child_process';
 import path = require('path');
 import * as vscode from 'vscode';
 
+// tslint:disable:no-null-keyword
 export class ElixirSenseServerProcess {
-
-    prototype;
-    ready;
-    proc;
-    args;
-    command;
 
     static initClass() {
         this.prototype.ready = false;
         this.prototype.proc = null;
     }
 
+    ready;
+    proc;
+    args;
+    command;
+
     constructor(public projectPath: string, public onTcpServerReady) {
-        this.command = "elixir";
-        let extensionPath = vscode.extensions.getExtension("mjmcloug.vscode-elixir").extensionPath;
-        this.args = [path.join(extensionPath, "elixir_sense/run.exs")];
+        this.command = 'elixir';
+        const extensionPath = vscode.extensions.getExtension('mjmcloug.vscode-elixir').extensionPath;
+        this.args = [path.join(extensionPath, 'elixir_sense/run.exs')];
         this.proc = null;
     }
 
     start(port, env) {
         this.proc = this.spawnChildProcess(port, env);
-        this.proc.stdout.on('data', chunk => {
+        this.proc.stdout.on('data', (chunk) => {
             if (this.onTcpServerReady) {
-                let auth_token, host;
-                if (~chunk.indexOf("ok:")) {
-                    let _;
-                    let rst = chunk.toString();
-                    [_, host, port, auth_token] = Array.from(chunk.toString().split(":"));
+                let authToken;
+                let host;
+                let _;
+                console.log(chunk);
+                if (chunk.indexOf('ok:') !== -1) {
+                    [_, host, port, authToken] = Array.from(chunk.toString().split(':'));
                 }
-                this.onTcpServerReady(host, port, auth_token || null);
-                this.onTcpServerReady = null;
-                return;
+                this.onTcpServerReady(host, port, authToken || undefined);
             }
 
             console.log(`[ElixirSense] ${chunk.toString()}`);
-            return this.ready = true;
+            this.ready = true;
         });
 
-        this.proc.stderr.on('data', chunk => {
+        this.proc.stderr.on('data', (chunk) => {
             this.ready = true;
-            let message = `[ElixirSense] ${chunk.toString()}`;
-            if (~chunk.indexOf("Server Error")) {
-                return console.warn(message);
+            const message = `[ElixirSense] ${chunk.toString()}`;
+            if (chunk.indexOf('Server Error') === -1) {
+                console.warn(message);
             } else {
-                return console.log(message);
+                console.log(message);
             }
         });
 
-        this.proc.on('close', exitCode => {
+        this.proc.on('close', (exitCode) => {
             console.log(`[vscode-elixir] Child process exited with code ${exitCode}`);
             this.ready = false;
-            return this.proc = null;
+            this.proc = null;
         });
 
-        return this.proc.on('error', error => {
+        this.proc.on('error', (error) => {
             console.error(`[vscode-elixir] ${error.toString()}`);
             this.ready = false;
-            return this.proc = null;
+            this.proc = null;
         });
     }
 
     stop() {
         this.proc.stdin.end();
         this.ready = false;
-        return this.proc = null;
+        this.proc = null;
     }
 
     spawnChildProcess(port, env) {
-        let options = {
+        const options = {
             cwd: this.projectPath,
-            stdio: "pipe",
+            stdio: 'pipe',
             windowsVerbatimArguments: false
         };
 

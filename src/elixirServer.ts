@@ -11,7 +11,7 @@ export class ElixirServer {
     buffer: string;
     ready: boolean;
     lastRequestType: string;
-    resultCallback: Function;
+    resultCallback: (result: string) => void;
 
     constructor() {
         const extensionPath: string = vscode.extensions.getExtension('mjmcloug.vscode-elixir').extensionPath;
@@ -57,7 +57,7 @@ export class ElixirServer {
             console.log('[vscode-elixir] exited', exitCode);
         });
         this.p.stdout.on('data', (chunk) => {
-            if ((<Buffer>chunk).indexOf(`END-OF-${this.lastRequestType}`) > -1) {
+            if ((chunk as Buffer).indexOf(`END-OF-${this.lastRequestType}`) > -1) {
                 const chunkString: string = chunk.toString();
                 const splitStrings: string[] = chunkString.split(`END-OF-${this.lastRequestType}`);
                 const result = (this.buffer + splitStrings[0]).trim();
@@ -72,7 +72,7 @@ export class ElixirServer {
             const errorString = chunk.toString();
             if (!errorString.startsWith('Initializing')) {
                 console.log('[vscode-elixir] error: aborting command', chunk.toString());
-                //TODO: this could be handled better.
+                // TODO: this could be handled better.
                 if (this.resultCallback) {
                     this.resultCallback('');
                 }
@@ -85,7 +85,7 @@ export class ElixirServer {
         });
     }
 
-    getDefinition(document: vscode.TextDocument, position: vscode.Position, callback: Function): void {
+    getDefinition(document: vscode.TextDocument, position: vscode.Position, callback ): void {
         const wordAtPosition = document.getWordRangeAtPosition(position);
         const word = document.getText(wordAtPosition);
         if (word.indexOf('\n') >= 0) {
@@ -94,7 +94,7 @@ export class ElixirServer {
             return;
         }
         const lookup = this.createDefinitionLookup(word);
-        const command: string = `DEFL { "${lookup}", "${document.fileName}", "${document.fileName}", ${position.line + 1} }\n`;
+        const command = `DEFL { "${lookup}", "${document.fileName}", "${document.fileName}", ${position.line + 1} }\n`;
         const resultCb = (result: string) => {
             if (process.platform === 'win32') {
                 result = result.replace(/\//g, '\\');
@@ -104,7 +104,7 @@ export class ElixirServer {
         this.sendRequest('DEFL', command, resultCb);
     }
 
-    getDocumentation(document: vscode.TextDocument, position: vscode.Position, callback: Function): void {
+    getDocumentation(document: vscode.TextDocument, position: vscode.Position, callback): void {
         const wordAtPosition = document.getWordRangeAtPosition(position);
         const word = document.getText(wordAtPosition);
         if (word.indexOf('\n') >= 0) {
@@ -112,7 +112,7 @@ export class ElixirServer {
             callback([]);
             return;
         }
-        const command: string = `DOCL { "${word}", "${document.fileName}", ${position.line + 1} }\n`;
+        const command = `DOCL { "${word}", "${document.fileName}", ${position.line + 1} }\n`;
         const resultCb = (result: string) => {
             if (result) {
                 const hover = new vscode.Hover(result, wordAtPosition);
@@ -120,7 +120,7 @@ export class ElixirServer {
             } else {
                 callback([]);
             }
-        }
+        };
         this.sendRequest('DOCL', command, resultCb);
     }
 
@@ -128,7 +128,7 @@ export class ElixirServer {
         if (word.indexOf('.') >= 0) {
             const words = word.split('.');
             let lookup = '';
-            words.forEach(w => {
+            words.forEach((w) => {
                 if (lookup.length > 0) {
                     if (this.isModuleName(w)) {
                         lookup = `${lookup}.${w}`;
@@ -156,7 +156,7 @@ export class ElixirServer {
         return /^[A-Z]/.test(word);
     }
 
-    getCompletions(document: vscode.TextDocument, position: vscode.Position, callback: Function): void {
+    getCompletions(document: vscode.TextDocument, position: vscode.Position, callback: (completionItems) => void): void {
         const wordAtPosition = document.getWordRangeAtPosition(position);
         const word = document.getText(wordAtPosition);
         if (word.indexOf('\n') >= 0) {
@@ -164,7 +164,7 @@ export class ElixirServer {
             callback([]);
             return;
         }
-        const command: string = `COMP { "${word}", "${document.fileName}", ${position.line + 1} }\n`;
+        const command = `COMP { "${word}", "${document.fileName}", ${position.line + 1} }\n`;
         const resultCb = (result: string) => {
             const suggestionLines = result.split('\n');
             // remove 'hint' suggestion (always the first one returned by alchemist)
@@ -178,11 +178,11 @@ export class ElixirServer {
     }
 
     stop() {
-        console.log('[vscode-elixir] stopping server')
+        console.log('[vscode-elixir] stopping server');
         this.p.stdin.end();
     }
 
-    private sendRequest(type: string, command: string, cb: Function): void {
+    private sendRequest(type: string, command: string, cb): void {
         if (!this.busy && this.ready) {
             this.lastRequestType = type;
             if (process.platform === 'win32') {
@@ -220,13 +220,13 @@ export class ElixirServer {
                 const lastIndex = hint.lastIndexOf('.');
                 prefix = hint.substr(0, lastIndex + 1);
             }
-            if(isErlangModule) {
+            if (isErlangModule) {
                 prefix = ':' + prefix;
             }
             completionItem.label = prefix + name;
             completionItem.insertText = prefix + name;
         } else {
-            let [name, kind, signature, mod, desc, spec] = suggestion;
+            const [name, kind, signature, mod, desc, spec] = suggestion;
             completionItem.detail = signature;
             let prefix = '';
             if (hint.indexOf('.') >= 0) {
@@ -234,13 +234,11 @@ export class ElixirServer {
                 prefix = hint.substr(0, lastIndex + 1);
             }
             if (kind === 'function' || kind === 'macro' || kind === 'public_function') {
-                if (name.indexOf('/') >= 0) {
-                    name = name.split('/')[0];
-                }
-                //TODO: VSCode currently doesnt seem to support 'snippet completions'
+                const expandedName = (name.indexOf('/') === -1) ? name : name.split('/')[0];
+                // TODO: VSCode currently doesnt seem to support 'snippet completions'
                 //      so adding the parameters to the Completion is not really useful.
-                //completionItem.insertText = prefix + name + '(' + signature + ')';
-                completionItem.insertText = prefix + name;
+                // completionItem.insertText = prefix + name + '(' + signature + ')';
+                completionItem.insertText = prefix + expandedName;
             }
             completionItem.label = prefix + name;
         }
