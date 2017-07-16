@@ -145,11 +145,7 @@ export class ElixirSenseClient {
         this.client.write(new Buffer(packet));
     }
 
-<<<<<<< 4320f3384c7d9b5613841d3f4bcce34c1d4d12d2
     send(request: Request, payload, onResult) {
-=======
-    send(request: string, payload, onResult) {
->>>>>>> lint elixirSenseClient.ts and elixirSenseSignatureHelpProvider.ts
         this.lastRequestId = this.lastRequestId + 1;
         this.requests[this.lastRequestId] = onResult;
         this.write({
