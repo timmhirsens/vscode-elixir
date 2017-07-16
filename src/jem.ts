@@ -1,39 +1,41 @@
 // The code
 // API
+// tslint:disable:no-var-keyword no-null-keyword prefer-const prefer-for-of
 export function encode(obj, mtu = 500000) {
+
     var dv = new DataView(new ArrayBuffer(mtu));
     dv.setUint8(0, 131);
     var [v, i] = _encodeValue(obj, dv, 1);
-    dv = <DataView>v;
+    dv = v as DataView;
     return dv.buffer.slice(0, i);
 }
 
 export function decode(buffer) {
     var dv = new DataView(buffer);
-    if (dv.getUint8(0) != 131)
-        throw "badarg";
-    else
-        return _decodeValue(dv, 1)[0];
+    if (dv.getUint8(0) !== 131) {
+        throw new Error('badarg');
+    }
+    return _decodeValue(dv, 1)[0];
 }
 
 // Internal functions
 function _encodeValue(value, dv, i) {
-    if (value === null) {
+    if (value === undefined) {
         return _encodeNull(dv, i);
     }
     else {
         switch (value.constructor.name) {
-            case "Object": return _encodeObject(value, dv, i);
-            case "Number": return _encodeNumber(value, dv, i);
-            case "Array": return _encodeArray(value, dv, i);
-            case "String": return _encodeString(value, dv, i);
-            case "Boolean": return _encodeBoolean(value, dv, i);
+            case 'Object': return _encodeObject(value, dv, i);
+            case 'Number': return _encodeNumber(value, dv, i);
+            case 'Array': return _encodeArray(value, dv, i);
+            case 'String': return _encodeString(value, dv, i);
+            case 'Boolean': return _encodeBoolean(value, dv, i);
         }
     }
 }
 
 function _decodeValue(dv, i) {
-    var tp = dv.getUint8(i)
+    var tp = dv.getUint8(i);
     switch (tp) {
         case 70:
             return [dv.getFloat64(i + 1), i + 9];
@@ -57,7 +59,7 @@ function _decodeValue(dv, i) {
         case 116:
             return _decodeObject(dv, i + 1);
         default:
-            throw "bad_tag: " + dv.getUint8(i);
+            throw new Error('bad_tag: ' + dv.getUint8(i));
     }
 }
 
@@ -72,10 +74,9 @@ function _encodeNull(dv, i) {
 }
 
 function _decodeAtom(tp, dv, i) {
-    var str = "";
+    var str = '';
     var k = 0;
-    switch(tp)
-    {
+    switch (tp) {
         case 100:
         case 118:
             var l = dv.getUint16(i);
@@ -95,9 +96,9 @@ function _decodeAtom(tp, dv, i) {
 
     var value;
     switch (str) {
-        case "nil": value = null; break;
-        case "true": value = true; break;
-        case "false": value = false; break;
+        case 'nil': value = null; break;
+        case 'true': value = true; break;
+        case 'false': value = false; break;
         default: value = str;
     }
     return [value, i + k];
@@ -108,7 +109,7 @@ function _encodeObject(obj, dv, i) {
     dv.setUint8(i, 116);
     i += 1;
     var keys = Object.keys(obj);
-    var l = keys.length
+    var l = keys.length;
     dv.setUint32(i, l);
     i += 4;
     for (var k = 0; k < l; k++) {
@@ -133,7 +134,7 @@ function _decodeObject(dv, i) {
 
 function _encodeNumber(num, dv, i) {
     // Check if we have a float or not
-    if (num != Math.floor(num)) {
+    if (num !== Math.floor(num)) {
         dv = _getDataView(dv, i, 9);
         dv.setUint8(i, 70);
         dv.setFloat64(i + 1, num);
@@ -172,8 +173,7 @@ function _encodeArray(arr, dv, i) {
 
 function _decodeTuple(tp, dv, i) {
     var l = 0;
-    switch(tp)
-    {
+    switch (tp) {
         case 104:
             l = dv.getUint8(i);
             i += 1;
@@ -228,8 +228,8 @@ function _decodeString(dv, i) {
     return [uintToString(arr), i + k];
 }
 
-function stringToUint(string) {
-    var strVal = unescape(encodeURIComponent(string));
+function stringToUint(str) {
+    var strVal = unescape(encodeURIComponent(str));
     var charList = strVal.split('');
     var uintArray = [];
     for (var i = 0; i < charList.length; i++) {
@@ -239,8 +239,8 @@ function stringToUint(string) {
 }
 
 function uintToString(uintArray) {
-    var encodedString = String.fromCharCode.apply(null, uintArray),
-        decodedString = decodeURIComponent(escape(encodedString));
+    const encodedString = String.fromCharCode.apply(null, uintArray);
+    const decodedString = decodeURIComponent(escape(encodedString));
     return decodedString;
 }
 
@@ -276,5 +276,5 @@ function _expandBuffer(buffer, minLength) {
     return tempArr.buffer;
 }
 
-declare function unescape(s:string): string;
-declare function escape(s:string): string;
+declare function unescape(s: string): string;
+declare function escape(s: string): string;
