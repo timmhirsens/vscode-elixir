@@ -76,12 +76,7 @@ function _encodeNull(dv, i) {
 function _decodeAtom(tp, dv, i) {
     var str = '';
     var k = 0;
-<<<<<<< ea399e1ce2e8fb5d1c0f30a2f073c987f10c8b5d
     switch (tp) {
-=======
-    switch (atomType) {
-        case 118:
->>>>>>> lint elixirServer.ts
         case 100:
         case 118:
             var l = dv.getUint16(i);
