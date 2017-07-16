@@ -1,6 +1,8 @@
 import * as net from 'net';
 import * as Jem from './jem';
 
+type Request = 'signature' | 'docs' | 'definition' | 'suggestions' | 'expand_full' | 'set_context';
+
 export class ElixirSenseClient {
 
     projectPath: string;
@@ -143,7 +145,7 @@ export class ElixirSenseClient {
         this.client.write(new Buffer(packet));
     }
 
-    send(request: string, payload, onResult) {
+    send(request: Request, payload, onResult) {
         this.lastRequestId = this.lastRequestId + 1;
         this.requests[this.lastRequestId] = onResult;
         this.write({
