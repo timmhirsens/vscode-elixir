@@ -229,10 +229,10 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
         }
 
         return {
-            label: label,
-            insertText: insertText,
+            label,
+            insertText,
             kind: type,
-            detail: detail,
+            detail,
             documentation: description + (spec ? '\n' + spec : ''),
         };
     }
