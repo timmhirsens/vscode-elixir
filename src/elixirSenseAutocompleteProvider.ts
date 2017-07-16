@@ -232,7 +232,11 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
             label,
             insertText,
             kind: type,
+<<<<<<< b927180aba991cc54b8931724bccb154ab56b6c6
             detail,
+=======
+            detail: detail,
+>>>>>>> lint and refactor elixirSenseAutocompleteProvider.ts
             documentation: description + (spec ? '\n' + spec : ''),
         };
     }
@@ -258,9 +262,15 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
         }
 
         snippet = `${defBefore} ${func}(${args.join(', ')}) do\n\t\nend\n`;
+<<<<<<< b927180aba991cc54b8931724bccb154ab56b6c6
 
         const [type, iconHTML, detail]: string[] = Array.from<string>(['value', 'c', mod]);
 
+=======
+
+        const [type, iconHTML, detail]: string[] = Array.from<string>(['value', 'c', mod]);
+
+>>>>>>> lint and refactor elixirSenseAutocompleteProvider.ts
         if (desc === '') {
             description = 'No documentation available.';
         }
