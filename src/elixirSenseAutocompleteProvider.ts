@@ -37,10 +37,6 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
             .then((elixirSenseClient) => checkElixirSenseClientInitialized(elixirSenseClient))
             .then((elixirSenseClient) => elixirSenseClient.send('suggestions', payload))
             .then((result) => checkTokenCancellation(token, result))
-            .then((result) => {
-                console.log('[$$$]', result);
-                return result;
-            })
             .then((result) => this.processSuggestionResult(prefix, pipeBefore, captureBefore, defBefore, result))
             .then((result) => resolve(result))
             .catch((err) => {
