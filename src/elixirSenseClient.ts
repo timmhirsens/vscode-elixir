@@ -61,6 +61,7 @@ export class ElixirSenseClient {
     }
 
     handleData(data) {
+        console.log('[!!!]');
         try {
             this.readPacket(data);
         } catch (e) {
@@ -145,7 +146,6 @@ export class ElixirSenseClient {
         this.client.write(new Buffer(packet));
     }
 
-<<<<<<< 4ce3767759aeb18cf45991f8f5eae423a69d59c4
     send(request: Request, payload): Promise<object> {
         const self = this;
         return new Promise((resolve, reject) => {
@@ -159,16 +159,7 @@ export class ElixirSenseClient {
                 request,
                 payload
             });
-=======
-    send(request: Request, payload, onResult) {
-        this.lastRequestId = this.lastRequestId + 1;
-        this.requests[this.lastRequestId] = onResult;
-        this.write({
-            request_id: this.lastRequestId,
-            auth_token: this.auth_token,
-            request,
-            payload
->>>>>>> lint elixirSenseHoverProvider.ts
+
         });
     }
 
