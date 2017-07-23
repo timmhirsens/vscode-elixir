@@ -146,6 +146,7 @@ export class ElixirSenseClient {
     }
 
     send(request: Request, payload): Promise<object> {
+<<<<<<< 47cb5fa6cde805e2441efe4582beb031bbf50b1c
         const self = this;
         return new Promise((resolve, reject) => {
             self.lastRequestId = self.lastRequestId + 1;
@@ -155,6 +156,16 @@ export class ElixirSenseClient {
             self.write({
                 request_id: self.lastRequestId,
                 auth_token: self.auth_token,
+=======
+        return new Promise(function(resolve, reject) {
+            this.lastRequestId = this.lastRequestId + 1;
+            this.requests[this.lastRequestId] = (err, result) => {
+                (err) ? reject(err) : resolve(result);
+            };
+            this.write({
+                request_id: this.lastRequestId,
+                auth_token: this.auth_token,
+>>>>>>> changes to the elixirSenseClient to have it maintain promises
                 request,
                 payload
             });
