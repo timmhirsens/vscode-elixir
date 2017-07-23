@@ -29,7 +29,7 @@ export class ElixirSenseServerProcess {
                 let authToken;
                 let host;
                 let _;
-<<<<<<< d779754915dea615ebd8f5feaaacbfd9e125710d
+
                 console.log(chunk.toString());
                 if (chunk.includes('ok:')) {
                     [_, host, port, authToken] = Array.from(chunk.toString().split(':'));
@@ -37,17 +37,10 @@ export class ElixirSenseServerProcess {
                 this.onTcpServerReady(host, port, authToken || undefined);
                 this.onTcpServerReady = null;
                 return;
-=======
-                console.log(chunk);
-                if (chunk.indexOf('ok:') !== -1) {
-                    [_, host, port, authToken] = Array.from(chunk.toString().split(':'));
-                }
-                this.onTcpServerReady(host, port, authToken || undefined);
->>>>>>> lint elixirSenseServerProcess.ts
             }
 
             console.log(`[ElixirSense] ${chunk.toString()}`);
-            this.ready = true;
+            return this.ready = true;
         });
 
         this.proc.stderr.on('data', (chunk) => {
