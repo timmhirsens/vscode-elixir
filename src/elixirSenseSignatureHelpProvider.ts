@@ -1,5 +1,13 @@
 import * as vscode from 'vscode';
 import { ElixirSenseClient } from './elixirSenseClient';
+import { checkElixirSenseClientInitialized, checkTokenCancellation } from './elixirSenseValidations';
+
+function validateResultIsNotNone(result: any) {
+    if (result === 'none') {
+        throw new Error();
+    }
+    return result;
+}
 
 export class ElixirSenseSignatureHelpProvider implements vscode.SignatureHelpProvider {
 
@@ -8,32 +16,19 @@ export class ElixirSenseSignatureHelpProvider implements vscode.SignatureHelpPro
     provideSignatureHelp(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken): Thenable<vscode.SignatureHelp> {
         return new Promise((resolve, reject) => {
 
-            if (!this.elixirSenseClient) {
-                console.log('ElixirSense client not ready');
-                console.error('rejecting');
-                reject();
-                return;
-            }
             const payload = {
                 buffer : document.getText(),
                 line   : position.line + 1,
                 column : position.character + 1
             };
 
-            this.elixirSenseClient.send('signature', payload, (result) => {
-
-                if (token.isCancellationRequested) {
-                    console.error('rejecting');
-                    reject();
-                    return;
-                }
-
-                if (result === 'none') {
-                    console.error('rejecting');
-                    reject();
-                    return;
-                }
-
+            return Promise.resolve(this.elixirSenseClient)
+            .then((elixirSenseClient) => checkElixirSenseClientInitialized(elixirSenseClient))
+            .then((elixirSenseClient) => elixirSenseClient.send('signature', payload))
+            .then((result) => checkTokenCancellation(token, result))
+            .then((result) => validateResultIsNotNone(result))
+            .then((result) => {
+                console.log('[$$$]', result);
                 let paramPosition = result.active_param;
                 const pipeBefore = result.pipe_before;
                 let signatures = result.signatures.filter((sig) => sig.params.length > paramPosition);
@@ -51,6 +46,10 @@ export class ElixirSenseSignatureHelpProvider implements vscode.SignatureHelpPro
                 signatureHelper.signatures = vsSigs;
 
                 resolve(signatureHelper);
+            })
+            .catch((err) => {
+                console.error('rejecting', err);
+                reject();
             });
         });
     }
@@ -66,7 +65,6 @@ export class ElixirSenseSignatureHelpProvider implements vscode.SignatureHelpPro
     }
 
     genParameterInfo(param): vscode.ParameterInformation {
-        const pi = new vscode.ParameterInformation(param);
-        return pi;
+        return new vscode.ParameterInformation(param);
     }
 }

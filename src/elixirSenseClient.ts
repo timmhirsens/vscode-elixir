@@ -61,6 +61,7 @@ export class ElixirSenseClient {
     }
 
     handleData(data) {
+        console.log('[!!!]');
         try {
             this.readPacket(data);
         } catch (e) {
@@ -92,13 +93,13 @@ export class ElixirSenseClient {
             }
 
             try {
-                const onResult = this.requests[result.request_id];
+                const onResultCB = this.requests[result.request_id];
                 delete this.requests[result.request_id];
-                if (onResult) {
+                if (onResultCB) {
                     if (result.error) {
-                        console.error(`[vscode-elixir] Server error: ${result.error}`);
+                        onResultCB(new Error(result.error), undefined);
                     } else {
-                        onResult(result.payload);
+                        onResultCB(undefined, result.payload);
                     }
                 } else {
                     console.error('[vscode-elixir] Server response contains invalid request id');
@@ -145,19 +146,25 @@ export class ElixirSenseClient {
         this.client.write(new Buffer(packet));
     }
 
-    send(request: Request, payload, onResult) {
-        this.lastRequestId = this.lastRequestId + 1;
-        this.requests[this.lastRequestId] = onResult;
-        this.write({
-            request_id: this.lastRequestId,
-            auth_token: this.auth_token,
-            request,
-            payload
+    send(request: Request, payload): Promise<object> {
+        console.log('[$$$]REQ', request);
+        return new Promise(function(resolve, reject) {
+            this.lastRequestId = this.lastRequestId + 1;
+            this.requests[this.lastRequestId] = (err, result) => {
+                (err) ? reject(err) : resolve(result);
+            };
+            this.write({
+                request_id: this.lastRequestId,
+                auth_token: this.auth_token,
+                request,
+                payload
+            });
         });
     }
 
     setContext(env, cwd) {
-        this.send('set_context', { env, cwd }, (result) => {
+        this.send('set_context', { env, cwd })
+        .then((result) => {
             if (result[0] !== this.env) {
                 this.env = result[0];
             }

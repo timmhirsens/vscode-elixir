@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { ElixirSenseClient } from './elixirSenseClient';
+import { checkElixirSenseClientInitialized, checkTokenCancellation } from './elixirSenseValidations';
 
 export class ElixirSenseDefinitionProvider implements vscode.DefinitionProvider {
     elixirSenseClient: ElixirSenseClient;
@@ -14,28 +15,18 @@ export class ElixirSenseDefinitionProvider implements vscode.DefinitionProvider 
         const word = document.getText(wordAtPosition);
         return new Promise<vscode.Definition>((resolve, reject) => {
 
-            if (!this.elixirSenseClient) {
-                console.log('ElixirSense client not ready');
-                console.error('rejecting');
-                reject();
-                return;
-            }
             const payload = {
                 buffer : document.getText(),
                 line   : position.line + 1,
                 column : position.character + 1
             };
 
-            this.elixirSenseClient.send('definition', payload, (result) => {
-
-                if (token.isCancellationRequested) {
-                    console.error('rejecting');
-                    reject();
-                    return;
-                }
-
+            return Promise.resolve(this.elixirSenseClient)
+            .then((elixirSenseClient) => checkElixirSenseClientInitialized(elixirSenseClient))
+            .then((elixirSenseClient) => elixirSenseClient.send('definition', payload))
+            .then((result) => checkTokenCancellation(token, result))
+            .then((result) => {
                 const [filePath, lineNumberStr] = result.split(':');
-
                 const lineNumber = Number(lineNumberStr) - 1;
 
                 if (!filePath || filePath === 'non_existing') {
@@ -51,6 +42,10 @@ export class ElixirSenseDefinitionProvider implements vscode.DefinitionProvider 
                 }
 
                 resolve(location);
+            })
+            .catch((err) => {
+                console.error('rejecting', err);
+                reject();
             });
         });
     }
