@@ -61,7 +61,6 @@ export class ElixirSenseClient {
     }
 
     handleData(data) {
-        console.log('[!!!]');
         try {
             this.readPacket(data);
         } catch (e) {
