@@ -28,7 +28,6 @@ export class ElixirSenseSignatureHelpProvider implements vscode.SignatureHelpPro
             .then((result) => checkTokenCancellation(token, result))
             .then((result) => validateResultIsNotNone(result))
             .then((result) => {
-                console.log('[$$$]', result);
                 let paramPosition = result.active_param;
                 const pipeBefore = result.pipe_before;
                 let signatures = result.signatures.filter((sig) => sig.params.length > paramPosition);
