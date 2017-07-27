@@ -26,7 +26,8 @@ export class ElixirSenseDefinitionProvider implements vscode.DefinitionProvider 
             .then((elixirSenseClient) => elixirSenseClient.send('definition', payload))
             .then((result) => checkTokenCancellation(token, result))
             .then((result) => {
-                const [filePath, lineNumberStr] = result.split(':');
+                const filePath = result.substring(0, result.lastIndexOf(':'));
+                const lineNumberStr = result.substring(result.lastIndexOf(':') + 1, result.length);
                 const lineNumber = Number(lineNumberStr) - 1;
 
                 if (!filePath || filePath === 'non_existing') {
