@@ -30,8 +30,8 @@ export class ElixirSenseDefinitionProvider implements vscode.DefinitionProvider 
                     return;
                 }
 
-                let [filePath, lineNumberStr] = result.split(':');
-
+                let filePath = result.substring(0, result.lastIndexOf(":"));
+                let lineNumberStr = result.substring(result.lastIndexOf(":") + 1, result.length);
                 let lineNumber = Number(lineNumberStr) - 1;
 
                 if (!filePath || filePath == 'non_existing') {

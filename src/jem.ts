@@ -33,7 +33,8 @@ function _encodeValue(value, dv, i) {
 }
 
 function _decodeValue(dv, i) {
-    switch (dv.getUint8(i)) {
+    var tp = dv.getUint8(i)
+    switch (tp) {
         case 70:
             return [dv.getFloat64(i + 1), i + 9];
         case 97:
@@ -43,9 +44,10 @@ function _decodeValue(dv, i) {
         case 100:
         case 118:
         case 119:
-            return _decodeAtom(dv, i + 1);
+            return _decodeAtom(tp, dv, i + 1);
         case 104:
-            return _decodeTuple(dv, i + 1);
+        case 105:
+            return _decodeTuple(tp, dv, i + 1);
         case 106:
             return [[], i + 1];
         case 108:
@@ -69,14 +71,13 @@ function _encodeNull(dv, i) {
     return [dv, i + 6];
 }
 
-function _decodeAtom(dv, i) {
+function _decodeAtom(tp, dv, i) {
     var str = "";
-    var atomType = dv.getUint8(i - 1);
     var k = 0;
-    switch(atomType)
+    switch(tp)
     {
-        case 118:
         case 100:
+        case 118:
             var l = dv.getUint16(i);
             i += 2;
             for (k = 0; k < l; k++) {
@@ -123,8 +124,7 @@ function _decodeObject(dv, i) {
     i += 4;
     var obj = {};
     for (var k = 0; k < l; k++) {
-        // var [key, i] = _decodeString(dv, i + 1);
-        var [key, i] = _decodeAtom(dv, i + 1);
+        var [key, i] = _decodeAtom(dv.getUint8(i), dv, i + 1);
         var [value, i] = _decodeValue(dv, i);
         obj[key] = value;
     }
@@ -170,14 +170,26 @@ function _encodeArray(arr, dv, i) {
     return [dv, i + 1];
 }
 
-function _decodeTuple(dv, i) {
-    var l = dv.getUint8(i);
-    i += 1;
+function _decodeTuple(tp, dv, i) {
+    var l = 0;
+    switch(tp)
+    {
+        case 104:
+            l = dv.getUint8(i);
+            i += 1;
+            break;
+        case 105:
+            l = dv.getUint32(i);
+            i += 4;
+            break;
+    }
+
     var arr = [];
     for (var k = 0; k < l; k++) {
         var [value, i] = _decodeValue(dv, i);
         arr[k] = value;
     }
+
     return [arr, i + 1];
 }
 
