@@ -1,3 +1,7 @@
+### v0.5.1: 27 Jul 2017
+ - small bugfix for windows
+ - update elixir_sense
+
 ### v0.5.0: 13 Jun 2017
  - Switched to using Elixir Sense for autocomplete/intellisense.
    If your are having issues with the new implmentation you can switch back to the old one by setting the property
