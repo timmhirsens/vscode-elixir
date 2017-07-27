@@ -1,4 +1,4 @@
-# Elixir Support for Visual Studio Code 
+# Elixir Support for Visual Studio Code
 
 [![Download](https://vsmarketplacebadge.apphb.com/version-short/mjmcloug.vscode-elixir.png)](https://marketplace.visualstudio.com/items?itemName=mjmcloug.vscode-elixir)
 [![Download](https://vsmarketplacebadge.apphb.com/installs-short/mjmcloug.vscode-elixir.png)](https://marketplace.visualstudio.com/items?itemName=mjmcloug.vscode-elixir)
@@ -85,5 +85,6 @@ These wonderful people have so far contributed to this extension. Feel free to a
 * [toddharding](https://github.com/toddharding)
 * [mackenza](https://github.com/mackenza)
 * [samuelsuarezsanchez](https://github.com/samuelsuarezsanchez)
+* [untra](https://github.com/untra)
 
 (This list is in no particular order.)
