@@ -72,7 +72,7 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
         const matchesWordEnd = prefix.match(/\.[^A-Z][^\.]*$/);
         const matchesNonWordEnd = prefix.match(/^[^A-Z:][^\.]*$/);
         const isPrefixFunctionCall = !!(matchesWordEnd || matchesNonWordEnd);
-        if (prefix !== '' && isPrefixFunctionCall) {
+        if (prefix && !isPrefixFunctionCall) {
             const prefixModules = prefix.split('.').slice(0, -1);
             return Array.from(prefixModules);
         }
@@ -101,7 +101,6 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
         }).filter((item: vscode.CompletionItem) => {
             return item !== undefined && item.label !== '';
         });
-
         return suggestions;
     }
 
