@@ -17,8 +17,6 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
             const documentTextRange = new vscode.Range(new vscode.Position(position.line, 0), position);
             const textBeforeCursor = document.getText(documentTextRange);
             const prefix = this.getPrefix(textBeforeCursor);
-            // const pipeBefore = !!textBeforeCursor.match(new RegExp(`\\|>\\s*${prefix}$`));
-            // const captureBefore = !!textBeforeCursor.match(new RegExp(`&${prefix}$`));
             const defBefore = this.getDefBefore(textBeforeCursor, prefix);
 
             if (prefix === '' && defBefore === '') {
@@ -41,6 +39,7 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
                 console.log('[$$$]', result);
                 return result;
             })
+            // .then((result) => this.extendResultSet(prefix, result))
             .then((result) => this.processSuggestionResult(prefix, position, defBefore, result))
             .then((result) => resolve(result))
             .catch((err) => {
@@ -74,16 +73,31 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
         return '';
     }
 
-    getModulesToAdd(prefix: string): string[] {
-        const matchesWordEnd = prefix.match(/\.[^A-Z][^\.]*$/);
-        const matchesNonWordEnd = prefix.match(/^[^A-Z:][^\.]*$/);
-        const isPrefixFunctionCall = !!(matchesWordEnd || matchesNonWordEnd);
-        if (prefix && !isPrefixFunctionCall) {
-            const prefixModules = prefix.split('.').slice(0, -1);
-            return Array.from(prefixModules);
-        }
-        return [];
-    }
+    // getModulesToAdd(prefix: string): string[] {
+    //     const matchesWordEnd = prefix.match(/\.[^A-Z][^\.]*$/);
+    //     const matchesNonWordEnd = prefix.match(/^[^A-Z:][^\.]*$/);
+    //     const isPrefixFunctionCall = !!(matchesWordEnd || matchesNonWordEnd);
+    //     if (prefix && !isPrefixFunctionCall) {
+    //         const prefixModules = prefix.split('.').slice(0, -1);
+    //         return Array.from(prefixModules);
+    //     }
+    //     return [];
+    // }
+
+    // extendResultSet(prefix: string, suggestionResults) {
+    //     const modulesToAdd = this.getModulesToAdd(prefix);
+    //     const isModulesToAddEmpty = modulesToAdd.length > 0;
+    //     const lastModuleHint = isModulesToAddEmpty ? modulesToAdd[modulesToAdd.length - 1] : '';
+    //     return suggestionResults.map((serverSuggestion) => {
+    //         const { name } = serverSuggestion;
+    //         const nameArray = Array.from([name, `:${name}`]);
+    //         const islastModuleHintNotInNameArray = nameArray.findIndex((i) => i === lastModuleHint) === -1;
+    //         if (isModulesToAddEmpty && islastModuleHintNotInNameArray) {
+    //             serverSuggestion.name = `${modulesToAdd.join('.')}.${name}`;
+    //         }
+    //         return serverSuggestion;
+    //     });
+    // }
 
     processSuggestionResult(prefix: string, position: vscode.Position, defBefore: string, suggestionResult)
     : vscode.CompletionItem[] {
@@ -121,7 +135,7 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
         if (type === 'callback') {
             const start = new vscode.Position(position.line - 1, 0);
             const range = new vscode.Range(start, start);
-            const newText = `\n  @impl ${origin}`;
+            const newText = `\n\t@impl ${origin}`;
             return [new vscode.TextEdit(range, newText)];
         }
         return undefined;
@@ -134,22 +148,35 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
     }
 
     getInsertText(serverSuggestion): string {
-        const {name, args, type} = serverSuggestion;
+        const {name, args, type, origin} = serverSuggestion;
         if (type === 'callback') {
             return `${name}(${args.split(',').join(', ')}) do\n\t\nend\n`;
         }
         if (type === 'macro') {
             return `${name} `;
         }
+        if (type === 'function' && origin) {
+            return `${origin}.${name}`;
+        }
         return name;
     }
 
-    getLabel(serverSuggestion): string {
-        const {name, arity, origin} = serverSuggestion;
+    getLabel(serverSuggestion): string | undefined {
+        const {name, arity, origin, subtype} = serverSuggestion;
         if (origin && origin.startsWith('Kernel')) {
             return name;
         }
-        return Number.isInteger(arity) ? `${name}/${arity}` : name;
+        else if (Number.isInteger(arity)) {
+            const {type} = serverSuggestion;
+            if (type === 'callback') {
+                return `${name}/${arity}`;
+            }
+            return `${origin}.${name}/${arity}`;
+        }
+        else if (subtype === 'protocol') {
+            return undefined;
+        }
+        return name;
     }
 
     getDetail(serverSuggestion): string {
