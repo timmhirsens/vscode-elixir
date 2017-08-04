@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { ElixirSenseClient } from './elixirSenseClient';
+import { checkElixirSenseClientInitialized, checkTokenCancellation } from './elixirSenseValidations';
 
 // tslint:disable:max-line-length
 export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemProvider {
@@ -13,9 +14,8 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
     provideCompletionItems(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken)
     : Thenable<vscode.CompletionItem[]> {
         return new Promise<vscode.CompletionItem[]>((resolve, reject) => {
-            const buffer = document.getText();
-            const documentText = new vscode.Range(new vscode.Position(position.line, 0), position);
-            const textBeforeCursor = document.getText(documentText);
+            const documentTextRange = new vscode.Range(new vscode.Position(position.line, 0), position);
+            const textBeforeCursor = document.getText(documentTextRange);
             const prefix = this.getPrefix(textBeforeCursor);
             const pipeBefore = !!textBeforeCursor.match(new RegExp(`\\|>\\s*${prefix}$`));
             const captureBefore = !!textBeforeCursor.match(new RegExp(`&${prefix}$`));
@@ -27,27 +27,23 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
                 return;
             }
 
-            if (!this.elixirSenseClient) {
-                console.log('ElixirSense client not ready');
-                console.error('rejecting');
-                reject();
-                return;
-            }
             const payload = {
                 buffer : document.getText(),
                 line   : position.line + 1,
                 column : position.character + 1
             };
 
-            this.elixirSenseClient.send('suggestions', payload, (result) => {
-                if (!token.isCancellationRequested) {
-                    const rst = this.processSuggestionResult(prefix, pipeBefore, captureBefore, defBefore, result);
-                    resolve(rst);
-                } else {
-                    console.error('rejecting');
-                    reject();
-                }
+            return Promise.resolve(this.elixirSenseClient)
+            .then((elixirSenseClient) => checkElixirSenseClientInitialized(elixirSenseClient))
+            .then((elixirSenseClient) => elixirSenseClient.send('suggestions', payload))
+            .then((result) => checkTokenCancellation(token, result))
+            .then((result) => this.processSuggestionResult(prefix, pipeBefore, captureBefore, defBefore, result))
+            .then((result) => resolve(result))
+            .catch((err) => {
+                console.error('rejecting', err);
+                reject();
             });
+
         });
     }
 
@@ -61,7 +57,7 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
     }
 
     getPrefix(textBeforeCursor: string): string {
-        if (textBeforeCursor.endsWith('  {')) {
+        if (textBeforeCursor.endsWith(' {')) {
             return '{';
         }
         const regex: RegExp = /[\w0-9\._!\?\:@]+$/;
@@ -76,7 +72,7 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
         const matchesWordEnd = prefix.match(/\.[^A-Z][^\.]*$/);
         const matchesNonWordEnd = prefix.match(/^[^A-Z:][^\.]*$/);
         const isPrefixFunctionCall = !!(matchesWordEnd || matchesNonWordEnd);
-        if (prefix !== '' && isPrefixFunctionCall) {
+        if (prefix && !isPrefixFunctionCall) {
             const prefixModules = prefix.split('.').slice(0, -1);
             return Array.from(prefixModules);
         }
@@ -105,7 +101,6 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
         }).filter((item: vscode.CompletionItem) => {
             return item !== undefined && item.label !== '';
         });
-
         return suggestions;
     }
 
