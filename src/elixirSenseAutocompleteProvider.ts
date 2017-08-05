@@ -30,17 +30,16 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
                 line   : position.line + 1,
                 column : position.character + 1
             };
-            console.log(this.elixirSenseClient.env);
+
             return Promise.resolve(this.elixirSenseClient)
             .then((elixirSenseClient) => checkElixirSenseClientInitialized(elixirSenseClient))
             .then((elixirSenseClient) => elixirSenseClient.send('suggestions', payload))
             .then((result) => checkTokenCancellation(token, result))
-            .then((result) => {
-                console.log('[$$$]', result);
-                return result;
+            .then((suggestions) => {
+                console.log('[vscode-elixir] elixir-sense suggestions:', suggestions);
+                return suggestions;
             })
-            // .then((result) => this.extendResultSet(prefix, result))
-            .then((result) => this.processSuggestionResult(prefix, position, defBefore, result))
+            .then((suggestions) => this.processSuggestions(prefix, position, defBefore, suggestions))
             .then((result) => resolve(result))
             .catch((err) => {
                 console.error('rejecting', err);
@@ -73,16 +72,12 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
         return '';
     }
 
-    processSuggestionResult(prefix: string, position: vscode.Position, defBefore: string, suggestionResult)
+    processSuggestions(prefix: string, position: vscode.Position, defBefore: string, suggestions)
     : vscode.CompletionItem[] {
-        const [hint, ...unsortedSuggestions] = suggestionResult;
-        const suggestions = this.sortSuggestions(unsortedSuggestions)
-        .map((serverSuggestion) => {
-            return this.createSuggestion(serverSuggestion, position, prefix, defBefore);
-        }).filter((item) => {
-            return item.label;
-        });
-        return suggestions;
+        const [hint, ...unsortedSuggestions] = suggestions;
+        return this.sortSuggestions(unsortedSuggestions)
+        .map((serverSuggestion) => this.createSuggestion(serverSuggestion, position, prefix, defBefore))
+        .filter((item) => item.label);
     }
 
     createSuggestion(serverSuggestion, position: vscode.Position, prefix: string, defBefore: string): vscode.CompletionItem {
@@ -193,7 +188,7 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
     sortSuggestions(suggestions) {
         const sortKind = (a, b) => {
             const priority = {
-                callback: 10,
+                callback: 1,
                 return: 1,
                 variable: 2,
                 attribute: 3,
