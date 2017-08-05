@@ -21,7 +21,6 @@ export class ElixirSenseHoverProvider implements vscode.HoverProvider {
             .then((result) => checkTokenCancellation(token, result))
             .then((result) => {
                 const { actual_subject, docs } = result;
-
                 if (!docs) {
                     console.error('rejecting');
                     reject();

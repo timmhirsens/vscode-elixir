@@ -158,7 +158,6 @@ export class ElixirSenseClient {
                 request,
                 payload
             });
-
         });
     }
 

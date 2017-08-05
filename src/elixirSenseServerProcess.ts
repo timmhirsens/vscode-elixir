@@ -29,7 +29,6 @@ export class ElixirSenseServerProcess {
                 let authToken;
                 let host;
                 let _;
-
                 console.log(chunk.toString());
                 if (chunk.includes('ok:')) {
                     [_, host, port, authToken] = Array.from(chunk.toString().split(':'));
