@@ -30,7 +30,7 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
                 line   : position.line + 1,
                 column : position.character + 1
             };
-
+            console.log(this.elixirSenseClient.env);
             return Promise.resolve(this.elixirSenseClient)
             .then((elixirSenseClient) => checkElixirSenseClientInitialized(elixirSenseClient))
             .then((elixirSenseClient) => elixirSenseClient.send('suggestions', payload))
@@ -72,32 +72,6 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
         }
         return '';
     }
-
-    // getModulesToAdd(prefix: string): string[] {
-    //     const matchesWordEnd = prefix.match(/\.[^A-Z][^\.]*$/);
-    //     const matchesNonWordEnd = prefix.match(/^[^A-Z:][^\.]*$/);
-    //     const isPrefixFunctionCall = !!(matchesWordEnd || matchesNonWordEnd);
-    //     if (prefix && !isPrefixFunctionCall) {
-    //         const prefixModules = prefix.split('.').slice(0, -1);
-    //         return Array.from(prefixModules);
-    //     }
-    //     return [];
-    // }
-
-    // extendResultSet(prefix: string, suggestionResults) {
-    //     const modulesToAdd = this.getModulesToAdd(prefix);
-    //     const isModulesToAddEmpty = modulesToAdd.length > 0;
-    //     const lastModuleHint = isModulesToAddEmpty ? modulesToAdd[modulesToAdd.length - 1] : '';
-    //     return suggestionResults.map((serverSuggestion) => {
-    //         const { name } = serverSuggestion;
-    //         const nameArray = Array.from([name, `:${name}`]);
-    //         const islastModuleHintNotInNameArray = nameArray.findIndex((i) => i === lastModuleHint) === -1;
-    //         if (isModulesToAddEmpty && islastModuleHintNotInNameArray) {
-    //             serverSuggestion.name = `${modulesToAdd.join('.')}.${name}`;
-    //         }
-    //         return serverSuggestion;
-    //     });
-    // }
 
     processSuggestionResult(prefix: string, position: vscode.Position, defBefore: string, suggestionResult)
     : vscode.CompletionItem[] {
@@ -164,6 +138,9 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
     getLabel(serverSuggestion): string | undefined {
         const {name, arity, origin, subtype} = serverSuggestion;
         if (origin && origin.startsWith('Kernel')) {
+            if (name.match(new RegExp(`^([A-Za-z]).+$`))) {
+                return `${name}/${arity}`;
+            }
             return name;
         }
         else if (Number.isInteger(arity)) {
@@ -188,6 +165,9 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
     }
 
     getKind(serverSuggestion): vscode.CompletionItemKind {
+        if (!serverSuggestion.name.match(new RegExp(`^([A-Za-z]).+$`))) {
+            return vscode.CompletionItemKind.Operator;
+        }
         switch (serverSuggestion.type) {
             case 'attribute':
                 return vscode.CompletionItemKind.Property;
@@ -199,10 +179,11 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
                 return vscode.CompletionItemKind.Interface;
             case 'return'   :
                 return vscode.CompletionItemKind.Value;
+            case 'macro' :
+                return vscode.CompletionItemKind.Field;
             case 'private_function' :
             case 'public_function'  :
             case 'function' :
-            case 'macro' :
                 return vscode.CompletionItemKind.Function;
             default:
                 return vscode.CompletionItemKind.Unit;
@@ -212,7 +193,7 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
     sortSuggestions(suggestions) {
         const sortKind = (a, b) => {
             const priority = {
-                callback: 1,
+                callback: 10,
                 return: 1,
                 variable: 2,
                 attribute: 3,
