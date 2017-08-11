@@ -89,23 +89,32 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
             return new vscode.CompletionItem('', 0);
         }
 
+        const label = this.getLabel(serverSuggestion);
+        const kind  = this.getKind(serverSuggestion);
+        const detail = this.getDetail(serverSuggestion);
+        const insertText = this.getInsertText(serverSuggestion);
+        const documentation = this.getDocumentation(serverSuggestion);
+        const additionalTextEdits = this.getAdditionalTextEdits(serverSuggestion, position);
+
         return {
-            label      : this.getLabel(serverSuggestion),
-            kind       : this.getKind(serverSuggestion),
-            detail     : this.getDetail(serverSuggestion),
-            insertText : this.getInsertText(serverSuggestion),
-            documentation : this.getDocumentation(serverSuggestion),
-            additionalTextEdits : this.getAdditionalTextEdits(serverSuggestion, position)
+            label,
+            kind,
+            detail,
+            insertText,
+            documentation,
+            additionalTextEdits
         };
     }
 
     getAdditionalTextEdits(serverSuggestion, position): vscode.TextEdit[] | undefined {
         const {origin, type} = serverSuggestion;
-        if (type === 'callback') {
-            const start = new vscode.Position(position.line - 1, 0);
-            const range = new vscode.Range(start, start);
-            const newText = `\n\t@impl ${origin}`;
-            return [new vscode.TextEdit(range, newText)];
+        if (this.elixirSenseClient.version.elixir >= '1.5') {
+            if (type === 'callback') {
+                const start = new vscode.Position(position.line - 1, 0);
+                const range = new vscode.Range(start, start);
+                const newText = `\n\t@impl ${origin}`;
+                return [new vscode.TextEdit(range, newText)];
+            }
         }
         return undefined;
     }
@@ -123,6 +132,9 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
         }
         if (type === 'macro') {
             return `${name} `;
+        }
+        if (type === 'function' && origin === 'Kernel') {
+            return `${name}`;
         }
         if (type === 'function' && origin) {
             return `${origin}.${name}`;

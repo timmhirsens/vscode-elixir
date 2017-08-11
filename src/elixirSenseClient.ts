@@ -1,8 +1,8 @@
 import * as net from 'net';
 import * as Jem from './jem';
 
-type Request = 'signature' | 'docs' | 'definition' | 'suggestions' | 'expand_full' | 'set_context';
-
+type Request = 'signature' | 'docs' | 'definition' | 'suggestions' | 'expand_full' | 'set_context' | 'version';
+interface IVersion { elixir; otp; }
 export class ElixirSenseClient {
 
     projectPath: string;
@@ -20,6 +20,8 @@ export class ElixirSenseClient {
     packetPos: number;
     packetBuffer: any;
     packetBufferView: any;
+
+    version: IVersion;
 
     constructor(host, port, authToken, env, projectPath) {
         this.host = host;
@@ -50,6 +52,13 @@ export class ElixirSenseClient {
     handleConnect() {
         this.resetBuffer(0, 4);
         console.log(`[vscode-elixir] ElixirSense client connected on ${this.host}:${this.port}`);
+        this.send('version', {})
+        .then((version: IVersion) => {
+            this.version = version;
+            console.log(`[vscode-elixir] ElixirSense client reporting versions:\n\
+            Elixir version: ${version.elixir}\n\
+            Erlang/OTP version: ${version.otp}`);
+        }).catch((err) => { 'swallow'; });
     }
 
     handleClose() {
@@ -173,6 +182,10 @@ export class ElixirSenseClient {
             }
             this.projectPath = result[1];
         });
+    }
+
+    getVersion() {
+        return this.version;
     }
 }
 
