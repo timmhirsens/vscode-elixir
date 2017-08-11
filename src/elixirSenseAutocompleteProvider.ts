@@ -82,7 +82,7 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
 
     createSuggestion(serverSuggestion, position: vscode.Position, prefix: string, defBefore: string): vscode.CompletionItem {
         const {name, type, args, summary, spec, arity, subtype, snippet, origin} = serverSuggestion;
-        if (defBefore === 'def' && type !== 'callback') {
+        if (defBefore === 'def' && !['public_function', 'callback'].includes(type)) {
             return new vscode.CompletionItem('', 0);
         }
         if (defBefore === 'use' && type !== 'module') {
@@ -152,7 +152,7 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
         }
         else if (Number.isInteger(arity)) {
             const {type} = serverSuggestion;
-            if (type === 'callback') {
+            if (['public_function', 'callback'].includes(type)) {
                 return `${name}/${arity}`;
             }
             return `${origin}.${name}/${arity}`;
@@ -178,19 +178,19 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
         switch (serverSuggestion.type) {
             case 'attribute':
                 return vscode.CompletionItemKind.Property;
-            case 'variable' :
+            case 'variable':
                 return vscode.CompletionItemKind.Variable;
-            case 'module'   :
+            case 'module':
                 return vscode.CompletionItemKind.Module;
-            case 'callback' :
+            case 'public_function':
+            case 'callback':
                 return vscode.CompletionItemKind.Interface;
-            case 'return'   :
+            case 'return':
                 return vscode.CompletionItemKind.Value;
-            case 'macro' :
+            case 'macro':
                 return vscode.CompletionItemKind.Field;
-            case 'private_function' :
-            case 'public_function'  :
-            case 'function' :
+            case 'private_function':
+            case 'function':
                 return vscode.CompletionItemKind.Function;
             default:
                 return vscode.CompletionItemKind.Unit;
