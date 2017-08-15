@@ -62,7 +62,8 @@
                 ],
                 "extensions": [
                     ".html.eex"
-                ]
+                ],
+                "configuration": "./html.exx.configuration.json"
             }
         ],
         "grammars": [
