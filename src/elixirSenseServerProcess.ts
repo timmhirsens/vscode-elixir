@@ -80,7 +80,10 @@ export class ElixirSenseServerProcess {
 
         if (process.platform === 'win32') {
             options.windowsVerbatimArguments = true;
-            return spawn('cmd', ['/s', '/c', `"${[this.command].concat(this.args).concat('tcpip', port, env).join(' ')}"`], options);
+
+            // quote all args in case they contain spaces in their paths. the ^ is the escape character; ^" is cmd.exe-speak for \".
+            const args = this.args.map(arg => `^"${arg}^"`);
+            return spawn('cmd', ['/s', '/c', `"${[this.command].concat(args).concat('tcpip', port, env).join(' ')}"`], options);
         } else {
             return spawn(this.command, this.args.concat('unix', port, env), options);
         }
