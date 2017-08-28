@@ -161,6 +161,16 @@
                     "description": "Project environment"
                 }
             }
+        },
+        "commands": [{
+            "command": "vscode-elixir.runInIex",
+            "title": "Run in iex"
+        }],
+        "menus": {
+            "commandPalette": [{
+                "when": "resourceLangId == elixir",
+                "command": "vscode-elixir.runInIex"
+          }]
         }
     },
     "scripts": {
