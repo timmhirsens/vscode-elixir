@@ -51,6 +51,26 @@ export function activate(ctx: vscode.ExtensionContext) {
         ctx.subscriptions.push(vscode.languages.registerHoverProvider(ELIXIR_MODE, new ElixirHoverProvider(this.elixirServer)));
         ctx.subscriptions.push(vscode.languages.setLanguageConfiguration('elixir', configuration));
     }
+
+    let terminal;
+    let runInIex = vscode.commands.registerCommand('vscode-elixir.runInIex', () => {
+        let editor = vscode.window.activeTextEditor;
+        let selection = editor.selection;
+        let text = selection.isEmpty ? editor.document.getText() : editor.document.getText(selection);
+
+        if (terminal !== undefined)
+        {
+            terminal.dispose();
+        }
+
+        terminal = vscode.window.createTerminal('iex');
+        terminal.sendText("iex", true);
+        terminal.sendText(text, true);
+        terminal.sendText("clear", true);
+        terminal.show();
+    });
+
+    ctx.subscriptions.push(runInIex);
 }
 
 export function deactivate() {
