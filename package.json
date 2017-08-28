@@ -173,10 +173,10 @@
     "devDependencies": {
         "tslint": "^5.5.0",
         "typescript": "^2.1.0",
-        "mocha": "^2.3.3",
+        "mocha": "^3.5.0",
         "vsce": "^1.22.0",
         "vscode": "^1.1.4",
         "@types/node": "^6.0.40",
-        "@types/mocha": "^2.2.32"
+        "@types/mocha": "^2.2.42"
     }
 }
