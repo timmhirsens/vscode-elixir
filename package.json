@@ -12,7 +12,7 @@
     "main": "./out/src/elixirMain",
     "license": "MIT",
     "engines": {
-        "vscode": "^1.12.0"
+        "vscode": "^1.15.0"
     },
     "repository": {
         "type": "git",
@@ -155,13 +155,24 @@
                     "default": true,
                     "description": "Use elixir-sense instead of alchemist-server"
                 },
+                "elixir.autoSpawnElixirSenseServers": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Automatically handle spawning of elixir-sense servers for each folder in the workspace"
+                },
                 "elixir.elixirEnv": {
                     "type": "string",
                     "default": "dev",
                     "description": "Project environment"
                 }
             }
-        }
+        },
+        "commands": [
+            {
+                "command": "extension.selectElixirSenseWorkspaceFolder",
+                "title": "Start ElixirSense server for workspace folder..."
+            }
+        ]
     },
     "scripts": {
         "vscode:prepublish": "tsc -p ./",

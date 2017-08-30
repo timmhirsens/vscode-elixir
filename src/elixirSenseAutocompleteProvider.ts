@@ -1,3 +1,4 @@
+import { join, sep } from 'path';
 import * as vscode from 'vscode';
 import { ElixirSenseClient } from './elixirSenseClient';
 import { checkElixirSenseClientInitialized, checkTokenCancellation } from './elixirSenseValidations';
@@ -14,6 +15,25 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
     provideCompletionItems(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken)
     : Thenable<vscode.CompletionItem[]> {
         return new Promise<vscode.CompletionItem[]>((resolve, reject) => {
+            let elixirSenseClientError;
+            const resultPromise = Promise.resolve(this.elixirSenseClient)
+                .then((elixirSenseClient) => checkElixirSenseClientInitialized(elixirSenseClient))
+                .catch((err) => {
+                    elixirSenseClientError = err;
+                });
+
+            if (elixirSenseClientError) {
+                console.error('rejecting', elixirSenseClientError);
+                reject();
+                return;
+            }
+
+            const documentPath = (document.uri || {fsPath: ''}).fsPath || '';
+            if (!documentPath.startsWith(join(this.elixirSenseClient.projectPath, sep))) {
+                reject();
+                return;
+            }
+
             const documentTextRange = new vscode.Range(new vscode.Position(position.line, 0), position);
             const textBeforeCursor = document.getText(documentTextRange);
             const prefix = this.getPrefix(textBeforeCursor);
@@ -33,9 +53,8 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
                 column : position.character + 1
             };
 
-            return Promise.resolve(this.elixirSenseClient)
-            .then((elixirSenseClient) => checkElixirSenseClientInitialized(elixirSenseClient))
-            .then((elixirSenseClient) => elixirSenseClient.send('suggestions', payload))
+            return resultPromise
+            .then((elixirSenseClient: ElixirSenseClient) => elixirSenseClient.send('suggestions', payload))
             .then((result) => checkTokenCancellation(token, result))
             .then((result) => this.processSuggestionResult(prefix, pipeBefore, captureBefore, defBefore, result))
             .then((result) => resolve(result))
