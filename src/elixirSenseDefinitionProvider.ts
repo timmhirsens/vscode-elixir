@@ -29,19 +29,11 @@ export class ElixirSenseDefinitionProvider implements vscode.DefinitionProvider 
                 const filePath = result.substring(0, result.lastIndexOf(':'));
                 const lineNumberStr = result.substring(result.lastIndexOf(':') + 1, result.length);
                 const lineNumber = Number(lineNumberStr) - 1;
-
                 if (!filePath || filePath === 'non_existing') {
                     resolve(undefined);
                     return;
                 }
-
-                let location;
-                if (lineNumber >= 0) {
-                    location = new vscode.Location(vscode.Uri.file(filePath), new vscode.Position(lineNumber, 0));
-                } else {
-                    location = new vscode.Location(vscode.Uri.file(filePath), new vscode.Position(0, 0));
-                }
-
+                const location = new vscode.Location(vscode.Uri.file(filePath), new vscode.Position(lineNumber, 0));
                 resolve(location);
             })
             .catch((err) => {
