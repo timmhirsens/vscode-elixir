@@ -17,8 +17,6 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
             const documentTextRange = new vscode.Range(new vscode.Position(position.line, 0), position);
             const textBeforeCursor = document.getText(documentTextRange);
             const prefix = this.getPrefix(textBeforeCursor);
-            const pipeBefore = !!textBeforeCursor.match(new RegExp(`\\|>\\s*${prefix}$`));
-            const captureBefore = !!textBeforeCursor.match(new RegExp(`&${prefix}$`));
             const defBefore = this.getDefBefore(textBeforeCursor, prefix);
 
             if (prefix === '' && defBefore === '') {
@@ -37,7 +35,11 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
             .then((elixirSenseClient) => checkElixirSenseClientInitialized(elixirSenseClient))
             .then((elixirSenseClient) => elixirSenseClient.send('suggestions', payload))
             .then((result) => checkTokenCancellation(token, result))
-            .then((result) => this.processSuggestionResult(prefix, pipeBefore, captureBefore, defBefore, result))
+            .then((suggestions) => {
+                console.log('[vscode-elixir] elixir-sense suggestions:', suggestions);
+                return suggestions;
+            })
+            .then((suggestions) => this.processSuggestions(prefix, position, defBefore, suggestions))
             .then((result) => resolve(result))
             .catch((err) => {
                 console.error('rejecting', err);
@@ -52,6 +54,8 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
             return 'def';
         } else if (textBeforeCursor.match(new RegExp(`defmacro\\s*${prefix}$`))) {
             return 'defmacro';
+        } else if (textBeforeCursor.match(new RegExp(`use\\s*${prefix}$`))) {
+            return 'use';
         }
         return '';
     }
@@ -68,233 +72,129 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
         return '';
     }
 
-    getModulesToAdd(prefix: string): string[] {
-        const matchesWordEnd = prefix.match(/\.[^A-Z][^\.]*$/);
-        const matchesNonWordEnd = prefix.match(/^[^A-Z:][^\.]*$/);
-        const isPrefixFunctionCall = !!(matchesWordEnd || matchesNonWordEnd);
-        if (prefix && !isPrefixFunctionCall) {
-            const prefixModules = prefix.split('.').slice(0, -1);
-            return Array.from(prefixModules);
-        }
-        return [];
-    }
-
-    processSuggestionResult(prefix: string, isPipeBefore: boolean, isCaptureBefore: boolean, autoCompleteKeyword: string, suggestionResult)
+    processSuggestions(prefix: string, position: vscode.Position, defBefore: string, suggestions)
     : vscode.CompletionItem[] {
-
-        const hint = suggestionResult[0].value;
-        const modulesToAdd = this.getModulesToAdd(prefix);
-        const unsortedSuggestions = suggestionResult.slice(1);
-        const hintModules = hint.split('.').slice(0, -1);
-        const isModulesToAddEmpty = modulesToAdd.length > 0;
-        const lastModuleHint = isModulesToAddEmpty ? modulesToAdd[modulesToAdd.length - 1] : '';
-
-        const suggestions = this.sortSuggestions(unsortedSuggestions)
-        .map((serverSuggestion, index) => {
-            const { name } = serverSuggestion;
-            const nameArray = Array.from([name, `:${name}`]);
-            const islastModuleHintNotInNameArray = nameArray.findIndex((i) => i === lastModuleHint) === -1;
-            if (isModulesToAddEmpty && islastModuleHintNotInNameArray) {
-                serverSuggestion.name = modulesToAdd.join('.') + '.' + name;
-            }
-            return this.createSuggestion(serverSuggestion, index, prefix, isPipeBefore, isCaptureBefore, autoCompleteKeyword);
-        }).filter((item: vscode.CompletionItem) => {
-            return item !== undefined && item.label !== '';
-        });
-        return suggestions;
+        const [hint, ...unsortedSuggestions] = suggestions;
+        return this.sortSuggestions(unsortedSuggestions)
+        .map((serverSuggestion) => this.createSuggestion(serverSuggestion, position, prefix, defBefore))
+        .filter((item) => item.label);
     }
 
-    createSuggestion(
-        serverSuggestion,
-        index: number,
-        prefix: string,
-        pipeBefore: boolean,
-        captureBefore: boolean,
-        defBefore: string) {
-        // tslint:disable-next-line:one-variable-per-declaration
-        let desc, kind, mod, name, signature, snippet, spec, subtype;
-        if (serverSuggestion.type === 'module') {
-            [name, kind, subtype, desc] = [serverSuggestion.name, serverSuggestion.type, serverSuggestion.subtype, serverSuggestion.summary];
-        } else if (serverSuggestion.type === 'return') {
-            [name, kind, spec, snippet] = Array.from([serverSuggestion.description, serverSuggestion.type, serverSuggestion.spec, serverSuggestion.snippet]);
-        } else {
-            [name, kind, signature, mod, desc, spec] = Array.from([serverSuggestion.name, serverSuggestion.type, serverSuggestion.args, serverSuggestion.origin, serverSuggestion.summary, serverSuggestion.spec]);
+    createSuggestion(serverSuggestion, position: vscode.Position, prefix: string, defBefore: string): vscode.CompletionItem {
+        const {name, type, args, summary, spec, arity, subtype, snippet, origin} = serverSuggestion;
+        if (defBefore === 'def' && !['public_function', 'callback'].includes(type)) {
+            return new vscode.CompletionItem('', 0);
+        }
+        if (defBefore === 'use' && type !== 'module') {
+            return new vscode.CompletionItem('', 0);
         }
 
-        if (defBefore && kind !== 'callback') {
-            return '';
-        }
-
-        const suggestion: vscode.CompletionItem = (() => {
-            if (kind === 'attribute') {
-                return this.createSuggestionForAttribute(name, prefix);
-            } else if (kind === 'variable') {
-                return this.createSuggestionForVariable(name);
-            } else if (kind === 'module') {
-                return this.createSuggestionForModule(serverSuggestion, name, desc, prefix, subtype);
-            } else if (kind === 'callback') {
-                return this.createSuggestionForCallback(serverSuggestion, name + '/' + serverSuggestion.arity, kind, signature, mod, desc, spec, prefix, defBefore);
-            } else if (kind === 'return') {
-                return this.createSuggestionForReturn(serverSuggestion, name, kind, spec, prefix, snippet);
-            } else if (['private_function', 'public_function', 'public_macro'].indexOf(kind) > -1) {
-                return this.createSuggestionForFunction(serverSuggestion, name + '/' + serverSuggestion.arity, kind, signature, '', desc, spec, prefix, pipeBefore, captureBefore);
-            } else if (['function', 'macro'].indexOf(kind) > -1) {
-                return this.createSuggestionForFunction(serverSuggestion, name + '/' + serverSuggestion.arity, kind, signature, mod, desc, spec, prefix, pipeBefore, captureBefore);
-            } else {
-                console.log(`Unknown kind: ${serverSuggestion}`);
-                return {
-                    label: serverSuggestion,
-                    detail: kind || 'hint'
-                };
-            }
-        })();
-
-        suggestion.sortText = ('00' + index).slice(-3);
-
-        return suggestion;
-    }
-
-    createSuggestionForAttribute(name, prefix): vscode.CompletionItem {
-        return {
-            detail: 'attribute',
-            insertText: name.slice(1),
-            kind: vscode.CompletionItemKind.Property,
-            label: name.slice(1)
-        };
-    }
-
-    createSuggestionForVariable(name): vscode.CompletionItem {
-        return {
-            detail: 'variable',
-            kind: vscode.CompletionItemKind.Variable,
-            label: name,
-        };
-    }
-
-    createSuggestionForFunction(serverSuggestion, name, kind, signature, mod, desc, spec, prefix, pipeBefore, captureBefore)
-    : vscode.CompletionItem {
-        const args = signature.split(',');
-        const [_, func, arity] = Array.from<string>(name.match(/(.+)\/(\d+)/));
-        const array = prefix.split('.');
-        const adjustedLength = Math.max(array.length, 1);
-        const moduleParts = array.slice(0, adjustedLength - 1);
-        const postfix = array[adjustedLength - 1];
-
-        let displayText = '';
-        let detail = '';
-        let snippet = func;
-        let description = desc;
-        spec = spec;
-
-        if (signature) {
-            displayText = `${func}`;
-            detail = `(${args.join(', ')})`;
-        } else {
-            if (Number(arity) > 0) {
-                detail = '(' + Array(Number(arity)).fill(0).map((x, i) => `arg${i}`).join(', ') + ')';
-            }
-            displayText = `${func}/${arity}`;
-        }
-
-        snippet = snippet.replace(/^:/, '') + '$0';
-
-        const [type, typeSpec] = Array.from((() => {
-            switch (kind) {
-                case 'private_function':
-                    return [vscode.CompletionItemKind.Method, 'private'];
-                case 'public_function':
-                    return [vscode.CompletionItemKind.Function, 'public'];
-                case 'function':
-                    return [vscode.CompletionItemKind.Function, mod];
-                case 'public_macro':
-                    return [vscode.CompletionItemKind.Function, 'public'];
-                case 'macro':
-                    return [vscode.CompletionItemKind.Function, mod];
-                default:
-                    return [undefined, ''];
-            }
-        })());
-
-        const label = displayText;
-        const insertText = func;
-
-        if (prefix.match(/^:/)) {
-            const [module, funcName] = Array.from(this.moduleAndFuncName(moduleParts, func));
-            description = 'No documentation available.';
-        }
+        const label = this.getLabel(serverSuggestion);
+        const kind  = this.getKind(serverSuggestion);
+        const detail = this.getDetail(serverSuggestion);
+        const insertText = this.getInsertText(serverSuggestion);
+        const documentation = this.getDocumentation(serverSuggestion);
+        const additionalTextEdits = this.getAdditionalTextEdits(serverSuggestion, position);
 
         return {
             label,
-            insertText,
-            kind: type,
+            kind,
             detail,
-            documentation: description + (spec ? '\n' + spec : ''),
-        };
-    }
-
-    createSuggestionForCallback(serverSuggestion, name, kind, signature, mod, desc, spec, prefix, defBefore): vscode.CompletionItem {
-        const args = signature.split(',');
-        const [func, arity] = Array.from<string>(name.split('/'));
-
-        let params = [];
-        let displayText = '';
-        let snippet: string = func;
-        let description = desc;
-        spec = spec;
-
-        if (signature) {
-            params = args.map((arg, i) => `\${${i + 1}:${arg.replace(/\s+\\.*$/, '')}}`);
-            displayText = `${func}(${args.join(', ')})`;
-        } else {
-            if (Number(arity) > 0) {
-                params = [1, arity, true].map((i) => `\${${i}:arg${i}}`);
-            }
-            displayText = `${func}/${arity}`;
-        }
-
-        snippet = `${defBefore} ${func}(${args.join(', ')}) do\n\t\nend\n`;
-
-        const [type, iconHTML, detail]: string[] = Array.from<string>(['value', 'c', mod]);
-
-        if (desc === '') {
-            description = 'No documentation available.';
-        }
-
-        return {
-            detail: mod,
-            documentation: description + (spec ? '\n' + spec : ''),
-            insertText: snippet,
-            kind: vscode.CompletionItemKind.Value,
-            label: displayText,
-        };
-    }
-
-    createSuggestionForReturn(serverSuggestion, name, kind, spec, prefix, snippet): vscode.CompletionItem {
-        snippet = snippet.replace(/"(\$\{\d+:)/g, '$1').replace(/(\})\$"/g, '$1') + '$0';
-        const insertText = name.startsWith(prefix) ?
-        name.slice(prefix.length, name.length - prefix.length - 1) : name;
-
-        return {
-            label: name,
-            kind: vscode.CompletionItemKind.Value,
-            detail: 'return',
             insertText,
-            documentation: spec
+            documentation,
+            additionalTextEdits
         };
     }
 
-    createSuggestionForModule(serverSuggestion, name, desc, prefix, subtype): vscode.CompletionItem {
-        if (name.match(/^[^A-Z:]/)) {
-            name = `:${name}`;
+    getAdditionalTextEdits(serverSuggestion, position): vscode.TextEdit[] | undefined {
+        const {origin, type} = serverSuggestion;
+        if (this.elixirSenseClient.version.elixir >= '1.5') {
+            if (type === 'callback') {
+                const start = new vscode.Position(position.line - 1, 0);
+                const range = new vscode.Range(start, start);
+                const newText = `\n\t@impl ${origin}`;
+                return [new vscode.TextEdit(range, newText)];
+            }
         }
-        const description = desc || 'No documentation available.';
+        return undefined;
+    }
 
-        return {
-            label: name,
-            kind: vscode.CompletionItemKind.Module,
-            detail: subtype || 'module',
-            documentation: description,
-        };
+    getDocumentation(serverSuggestion): string {
+        const {summary, spec = ''} = serverSuggestion;
+        const description = summary ? summary : 'No documentation available.';
+        return `${description}\n${spec}`;
+    }
+
+    getInsertText(serverSuggestion): string {
+        const {name, args, type, origin} = serverSuggestion;
+        if (type === 'callback') {
+            return `${name}(${args.split(',').join(', ')}) do\n\t\nend\n`;
+        }
+        if (type === 'macro') {
+            return `${name} `;
+        }
+        if (type === 'function' && origin === 'Kernel') {
+            return `${name}`;
+        }
+        if (type === 'function' && origin) {
+            return `${origin}.${name}`;
+        }
+        return name;
+    }
+
+    getLabel(serverSuggestion): string | undefined {
+        const {name, arity, origin, subtype} = serverSuggestion;
+        if (origin && origin.startsWith('Kernel')) {
+            if (name.match(new RegExp(`^([A-Za-z]).+$`))) {
+                return `${name}/${arity}`;
+            }
+            return name;
+        }
+        else if (Number.isInteger(arity)) {
+            const {type} = serverSuggestion;
+            if (['public_function', 'callback'].includes(type)) {
+                return `${name}/${arity}`;
+            }
+            return `${origin}.${name}/${arity}`;
+        }
+        else if (subtype === 'protocol') {
+            return undefined;
+        }
+        return name;
+    }
+
+    getDetail(serverSuggestion): string {
+        const {type, subtype, args} = serverSuggestion;
+        const signature = args ? `(${args.split(',').join(', ')})` : '';
+        return signature
+        || subtype
+        || type;
+    }
+
+    getKind(serverSuggestion): vscode.CompletionItemKind {
+        if (!serverSuggestion.name.match(new RegExp(`^([A-Za-z]).+$`))) {
+            return vscode.CompletionItemKind.Operator;
+        }
+        switch (serverSuggestion.type) {
+            case 'attribute':
+                return vscode.CompletionItemKind.Property;
+            case 'variable':
+                return vscode.CompletionItemKind.Variable;
+            case 'module':
+                return vscode.CompletionItemKind.Module;
+            case 'public_function':
+            case 'callback':
+                return vscode.CompletionItemKind.Interface;
+            case 'return':
+                return vscode.CompletionItemKind.Value;
+            case 'macro':
+                return vscode.CompletionItemKind.Field;
+            case 'private_function':
+            case 'function':
+                return vscode.CompletionItemKind.Function;
+            default:
+                return vscode.CompletionItemKind.Unit;
+        }
     }
 
     sortSuggestions(suggestions) {
@@ -311,7 +211,6 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
                 public_function: 6,
                 function: 6
             };
-
             return priority[a.type] - priority[b.type];
         };
 
@@ -367,17 +266,5 @@ export class ElixirSenseAutocompleteProvider implements vscode.CompletionItemPro
         suggestions = suggestions.sort(sortFunc);
 
         return suggestions;
-    }
-
-    moduleAndFuncName(moduleParts, func) {
-        let module = '';
-        let funcName = '';
-        if (func.match(/^:/)) {
-            [module, funcName] = Array.from<string>(func.split('.'));
-        } else if (moduleParts.length > 0) {
-            module = moduleParts[0];
-            funcName = func;
-        }
-        return [module, funcName];
     }
 }
