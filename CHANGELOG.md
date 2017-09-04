@@ -1,3 +1,9 @@
+### v1.0.0: 04 Sep 2017
+ - many internal refactorings
+ - fix for starting elixir_sense on windows
+ - support elixir_sense in multi folder workspaces
+ - fixes to the html / eex language configuration
+
 ### v0.5.1: 27 Jul 2017
  - small bugfix for windows
  - update elixir_sense
