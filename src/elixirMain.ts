@@ -1,3 +1,5 @@
+import { existsSync } from 'fs';
+import { join } from 'path';
 import * as vscode from 'vscode';
 import { configuration } from './configuration';
 import { ElixirAutocomplete } from './elixirAutocomplete';
@@ -16,33 +18,32 @@ const ELIXIR_MODE: vscode.DocumentFilter = { language: 'elixir', scheme: 'file' 
 let elixirServer: ElixirServer;
 // Elixir-Sense
 let useElixirSense: boolean;
-let elixirSenseServer: ElixirSenseServerProcess;
-let elixirSenseClient: ElixirSenseClient;
+let autoSpawnElixirSenseServers: boolean;
+const elixirSenseServers: {[path: string]: {server: ElixirSenseServerProcess, subscriptions: () => vscode.Disposable[]}} = {};
+const elixirSenseClients: {[path: string]: ElixirSenseClient} = {};
 
 export function activate(ctx: vscode.ExtensionContext) {
     const elixirSetting = vscode.workspace.getConfiguration('elixir');
     useElixirSense = elixirSetting.useElixirSense;
+    autoSpawnElixirSenseServers = elixirSetting.autoSpawnElixirSenseServers;
+    // TODO: detect environment automatically.
+    const env = elixirSetting.elixirEnv;
 
     if (useElixirSense) {
         ElixirSenseServerProcess.initClass();
-        // TODO: detect environment automatically.
-        const env = elixirSetting.elixirEnv;
-        const projectPath = vscode.workspace.rootPath;
-        elixirSenseServer = new ElixirSenseServerProcess(vscode.workspace.rootPath, (host, port, authToken) => {
-            elixirSenseClient = new ElixirSenseClient(host, port, authToken, env, projectPath);
-            const autoCompleteProvider = new ElixirSenseAutocompleteProvider(elixirSenseClient);
-            const definitionProvider = new ElixirSenseDefinitionProvider(elixirSenseClient);
-            const hoverProvider = new ElixirSenseHoverProvider(elixirSenseClient);
-            const signatureHelpProvider = new ElixirSenseSignatureHelpProvider(elixirSenseClient);
-            ctx.subscriptions.concat([
-                vscode.languages.registerCompletionItemProvider(ELIXIR_MODE, autoCompleteProvider, '.', '{', '@'),
-                vscode.languages.registerDefinitionProvider(ELIXIR_MODE, definitionProvider),
-                vscode.languages.registerHoverProvider(ELIXIR_MODE, hoverProvider),
-                vscode.languages.registerSignatureHelpProvider(ELIXIR_MODE, signatureHelpProvider, '(', ','),
-                vscode.languages.setLanguageConfiguration('elixir', configuration)
-            ]);
+        if (autoSpawnElixirSenseServers) {
+            (vscode.workspace.workspaceFolders || []).forEach((workspaceFolder) => {
+                startElixirSenseServerForWorkspaceFolder(workspaceFolder, ctx, env);
+            });
+        }  else if ((vscode.workspace.workspaceFolders || []).length === 1) {
+            startElixirSenseServerForWorkspaceFolder(vscode.workspace.workspaceFolders[0], ctx, env);
+        }
+        vscode.workspace.onDidChangeWorkspaceFolders((e) => {
+            (e.removed || []).forEach((workspaceFolder) => stopElixirSenseServerByPath(workspaceFolder.uri.fsPath));
+            if (autoSpawnElixirSenseServers) {
+                (e.added || []).forEach((workspaceFolder) => startElixirSenseServerForWorkspaceFolder(workspaceFolder, ctx, env));
+            }
         });
-        elixirSenseServer.start(0, env);
     } else {
         this.elixirServer = new ElixirServer();
         this.elixirServer.start();
@@ -51,12 +52,100 @@ export function activate(ctx: vscode.ExtensionContext) {
         ctx.subscriptions.push(vscode.languages.registerHoverProvider(ELIXIR_MODE, new ElixirHoverProvider(this.elixirServer)));
         ctx.subscriptions.push(vscode.languages.setLanguageConfiguration('elixir', configuration));
     }
+    const disposables = [];
+    if (useElixirSense) {
+        disposables.push(vscode.commands.registerCommand('extension.selectElixirSenseWorkspaceFolder',
+            () => selectElixirSenseWorkspaceFolder(ctx, env)));
+    }
+    ctx.subscriptions.push(...disposables);
 }
 
 export function deactivate() {
     if (useElixirSense) {
-        elixirSenseServer.stop();
+        stopAllElixirSenseServers();
     } else {
         this.elixirServer.stop();
     }
+}
+
+function startElixirSenseServerForWorkspaceFolder(workspaceFolder: vscode.WorkspaceFolder, ctx: vscode.ExtensionContext, env: any) {
+    const projectPath = workspaceFolder.uri.fsPath;
+    if (elixirSenseServers[projectPath] || !existsSync(join(projectPath, 'mix.exs'))) {
+        return;
+    }
+    let subscriptions;
+    const elixirSenseServer = new ElixirSenseServerProcess(projectPath, (host, port, authToken) => {
+        const elixirSenseClient = new ElixirSenseClient(host, port, authToken, env, projectPath);
+        elixirSenseClients[projectPath] = elixirSenseClient;
+        const autoCompleteProvider = new ElixirSenseAutocompleteProvider(elixirSenseClient);
+        const definitionProvider = new ElixirSenseDefinitionProvider(elixirSenseClient);
+        const hoverProvider = new ElixirSenseHoverProvider(elixirSenseClient);
+        const signatureHelpProvider = new ElixirSenseSignatureHelpProvider(elixirSenseClient);
+        subscriptions = [
+            vscode.languages.registerCompletionItemProvider(ELIXIR_MODE, autoCompleteProvider, '.', '{', '@'),
+            vscode.languages.registerDefinitionProvider(ELIXIR_MODE, definitionProvider),
+            vscode.languages.registerHoverProvider(ELIXIR_MODE, hoverProvider),
+            vscode.languages.registerSignatureHelpProvider(ELIXIR_MODE, signatureHelpProvider, '(', ','),
+            vscode.languages.setLanguageConfiguration('elixir', configuration)
+        ];
+        ctx.subscriptions.concat(subscriptions);
+    });
+    elixirSenseServer.start(0, env);
+    elixirSenseServers[projectPath] = {
+        server: elixirSenseServer,
+        subscriptions: () => subscriptions,
+    };
+}
+
+function stopElixirSenseServerByPath(path: string) {
+    const serverEntry = elixirSenseServers[path];
+    if (serverEntry) {
+        serverEntry.server.stop();
+        (serverEntry.subscriptions() || []).forEach((subscription) => subscription.dispose());
+    }
+    delete elixirSenseServers[path];
+}
+
+function stopAllElixirSenseServers() {
+    Object.keys(elixirSenseServers).forEach(stopElixirSenseServerByPath);
+}
+
+function selectElixirSenseWorkspaceFolder(ctx: vscode.ExtensionContext, env: any) {
+    if (autoSpawnElixirSenseServers) {
+        vscode.window.showInformationMessage(
+            'Setting `elixir.autoSpawnElixirSenseServers` is set to `true`'
+            + 'so there is no need to manually start the ElixirSense server');
+        return;
+    }
+    const workspaceFolders = vscode.workspace.workspaceFolders || [];
+    if (!workspaceFolders.length) {
+        vscode.window.showInformationMessage('There are no folders in the current workspace');
+        return;
+    }
+    const items = workspaceFolders
+        .map((workspaceFolder) => ({
+            label: workspaceFolder.name,
+            description: workspaceFolder.uri.fsPath,
+        } as vscode.QuickPickItem))
+        .filter((item) => !elixirSenseServers[item.description]);
+    const options = {
+        matchOnDescription: false,
+        matchOnDetail: false,
+        placeHolder: 'Choose workspace folder...',
+      } as vscode.QuickPickOptions;
+    vscode.window.showQuickPick(items, options).then(
+        (item: vscode.QuickPickItem) => {
+          if (!item) {
+            return;
+          }
+          const workspaceFolder = (vscode.workspace.workspaceFolders || [])
+            .find((workspaceFolderTmp) => workspaceFolderTmp.uri.fsPath === item.description);
+          if (!workspaceFolder) {
+            return;
+          }
+          stopAllElixirSenseServers();
+          startElixirSenseServerForWorkspaceFolder(workspaceFolder, ctx, env);
+        },
+        // tslint:disable-next-line:no-empty
+        (reason: any) => {});
 }
