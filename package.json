@@ -129,22 +129,22 @@
                 "name": "mixTestFailure",
                 "owner": "elixir",
                 "fileLocation": [
-                    "relative",
-                    "${workspaceRoot}"
+                  "relative",
+                  "${workspaceRoot}"
                 ],
                 "severity": "warning",
                 "pattern": [
-                    {
-                        "regexp": "^  \\d+\\) (.*)$",
-                        "message": 1
-                    },
-                    {
-                        "regexp": "^     (.*):(\\d+)$",
-                        "file": 1,
-                        "location": 2
-                    }
+                  {
+                    "regexp": "^\\s*\\d+\\) (.*)$",
+                    "message": 1
+                  },
+                  {
+                    "regexp": "^\\s*(.*):(\\d+)$",
+                    "file": 1,
+                    "location": 2
+                  }
                 ]
-            }
+              }
         ],
         "configuration": {
             "type": "object",
