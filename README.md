@@ -20,6 +20,8 @@ This extension adds rich elixir language support to VS Code including:
 #### Problems
 ![problems](https://raw.githubusercontent.com/fr1zle/vscode-elixir/master/images/problems.gif)
 
+Theme used in the examples: 'Atom One Dark'
+
 ## Using
 
 Make sure you have installed elixir with all its dependencies correctly and make sure it's in your path. You can check this by typing `elixir --version` into a terminal.
