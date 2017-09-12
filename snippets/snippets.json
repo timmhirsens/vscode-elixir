@@ -122,7 +122,14 @@
 	"mdoc": {
 		"prefix": "@moduledoc",
 		"body": "@moduledoc \"\"\"\n$0\n\"\"\"",
-		"description": "moduledoc"
+		"description": "moduledoc",
+		"scope": "source.elixir"
+	},
+	"spec": {
+		"prefix": "@spec",
+		"body": "@spec $0",
+		"description": "spec",
+		"scope": "source.elixir"
 	},
 	"rec": {
 		"prefix": "receive",
