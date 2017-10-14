@@ -119,9 +119,10 @@
                         "message": 1
                     },
                     {
-                        "regexp": "^  (.*):(\\d+)$",
+                        "regexp": "^  (.*):(\\d+)(.*)$",
                         "file": 1,
-                        "location": 2
+                        "location": 2,
+                        "message": 3
                     }
                 ]
             },
