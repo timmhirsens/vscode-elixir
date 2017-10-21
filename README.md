@@ -91,7 +91,7 @@ These wonderful people have so far contributed to this extension. Feel free to a
 * [PotterDai](https://github.com/PotterDai)
 * [Fahrradflucht](https://github.com/Fahrradflucht)
 * [bill-mybiz](https://github.com/bill-mybiz)
-* [securingsincit](https://github.com/securingsincity)
+* [securingsincity](https://github.com/securingsincity)
 * [toddharding](https://github.com/toddharding)
 * [mackenza](https://github.com/mackenza)
 * [samuelsuarezsanchez](https://github.com/samuelsuarezsanchez)
