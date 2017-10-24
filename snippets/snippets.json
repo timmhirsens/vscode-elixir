@@ -30,49 +30,49 @@
 		"scope": "source.elixir"
 	},
 	"defc": {
-		"prefix": "defcallback",
+		"prefix": "defc",
 		"body": "defcallback $1 :: $0",
 		"description": "defcallback",
 		"scope": "source.elixir"
 	},
 	"defd": {
-		"prefix": "defdelegate",
+		"prefix": "defd",
 		"body": "defdelegate $1 to: $0",
 		"description": "defdelegate",
 		"scope": "source.elixir"
 	},
 	"defe": {
-		"prefix": "defexception",
+		"prefix": "defe",
 		"body": "defexception [${1::message}]",
 		"description": "defexception",
 		"scope": "source.elixir"
 	},
 	"defi": {
-		"prefix": "defimpl",
+		"prefix": "defi",
 		"body": "defimpl $1, for: $2 do\n  $0\nend",
 		"description": "defimpl",
 		"scope": "source.elixir"
 	},
 	"defm": {
-		"prefix": "defmacro",
+		"prefix": "defm",
 		"body": "defmacro $1 do\n\t$0\nend",
 		"description": "defmacro",
 		"scope": "source.elixir"
 	},
 	"defmc": {
-		"prefix": "defmacrocallback",
+		"prefix": "defmc",
 		"body": "defmacrocallback $1 :: $0",
 		"description": "defmacrocallback",
 		"scope": "source.elixir"
 	},
 	"defmp": {
-		"prefix": "defmacrop",
+		"prefix": "defmp",
 		"body": "defmacrop $1 do\n\t$0\nend",
 		"description": "defmacrop",
 		"scope": "source.elixir"
 	},
 	"defmod": {
-		"prefix": "defmodule",
+		"prefix": "defmod",
 		"body": "defmodule $1 do\n\t$0\nend",
 		"description": "defmodule",
 		"scope": "source.elixir"
@@ -84,13 +84,13 @@
 		"scope": "source.elixir"
 	},
 	"defpro": {
-		"prefix": "defprotocol",
+		"prefix": "defpro",
 		"body": "defprotocol $1 do\n  $0\nend",
 		"description": "defprotocol",
 		"scope": "source.elixir"
 	},
 	"defs": {
-		"prefix": "defstruct",
+		"prefix": "defs",
 		"body": "defstruct $1: $2",
 		"description": "defstruct",
 		"scope": "source.elixir"
@@ -102,7 +102,7 @@
 		"scope": "source.elixir"
 	},
 	"doc": {
-		"prefix": "@doc",
+		"prefix": "doc",
 		"body": "@doc \"\"\"\n$0\n\"\"\"",
 		"description": "doc",
 		"scope": "source.elixir"
@@ -120,7 +120,7 @@
 		"scope": "source.elixir"
 	},
 	"mdoc": {
-		"prefix": "@moduledoc",
+		"prefix": "mdoc",
 		"body": "@moduledoc \"\"\"\n$0\n\"\"\"",
 		"description": "moduledoc",
 		"scope": "source.elixir"
@@ -132,13 +132,13 @@
 		"scope": "source.elixir"
 	},
 	"rec": {
-		"prefix": "receive",
+		"prefix": "rec",
 		"body": "receive do\n\t${1:{${2::message_type}, ${3:value}\\}} ->\n    ${0:# code}\nend\n",
 		"description": "receive",
 		"scope": "source.elixir"
 	},
 	"req": {
-		"prefix": "require",
+		"prefix": "req",
 		"body": "require $0",
 		"description": "require",
 		"scope": "source.elixir"
