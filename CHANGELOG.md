@@ -1,3 +1,11 @@
+### v1.1.0: 01 Nov 2017
+ - internal refactorings
+ - different highlight for variables starting with underscore
+ - provide a way to specify the path of a Mix project inside a vscode project (`elixir.projectPath`)
+ - merged latest elixir syntax file from atom
+ - more details in problem view for compiler warnings
+ - support for espec test failures in problem view
+
 ### v1.0.0: 04 Sep 2017
  - many internal refactorings
  - fix for starting elixir_sense on windows
