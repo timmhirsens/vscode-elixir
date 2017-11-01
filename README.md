@@ -75,6 +75,14 @@ To get compile warning / errors and test failures in your problem view, add the 
 
 See https://go.microsoft.com/fwlink/?LinkId=733558 for the documentation about the tasks.json format
 
+### Emmet completions
+
+To get Emmet support in `html.eex` files add the following to your user settings (`Ctrl + ,`):
+
+```json
+"emmet.includeLanguages": {"HTML (Eex)": "html"}
+```
+
 ## Contributors
 
 These wonderful people have so far contributed to this extension. Feel free to add your name here:
