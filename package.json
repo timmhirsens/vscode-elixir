@@ -6,7 +6,7 @@
         "Elixir",
         "syntax"
     ],
-    "version": "1.0.0",
+    "version": "1.1.0",
     "publisher": "mjmcloug",
     "icon": "images/logo.png",
     "main": "./out/src/elixirMain",
@@ -130,22 +130,22 @@
                 "name": "mixTestFailure",
                 "owner": "elixir",
                 "fileLocation": [
-                  "relative",
-                  "${workspaceRoot}"
+                    "relative",
+                    "${workspaceRoot}"
                 ],
                 "severity": "warning",
                 "pattern": [
-                  {
-                    "regexp": "^\\s*\\d+\\) (.*)$",
-                    "message": 1
-                  },
-                  {
-                    "regexp": "^\\s*(.*):(\\d+)$",
-                    "file": 1,
-                    "location": 2
-                  }
+                    {
+                        "regexp": "^\\s*\\d+\\) (.*)$",
+                        "message": 1
+                    },
+                    {
+                        "regexp": "^\\s*(.*):(\\d+)$",
+                        "file": 1,
+                        "location": 2
+                    }
                 ]
-              }
+            }
         ],
         "configuration": {
             "type": "object",
