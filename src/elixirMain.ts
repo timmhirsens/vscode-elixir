@@ -26,6 +26,7 @@ export function activate(ctx: vscode.ExtensionContext) {
     const elixirSetting = vscode.workspace.getConfiguration('elixir');
     useElixirSense = elixirSetting.useElixirSense;
     autoSpawnElixirSenseServers = elixirSetting.autoSpawnElixirSenseServers;
+    const projectPath = elixirSetting.projectPath;
     // TODO: detect environment automatically.
     const env = elixirSetting.elixirEnv;
 
@@ -33,7 +34,7 @@ export function activate(ctx: vscode.ExtensionContext) {
         ElixirSenseServerProcess.initClass();
         if (autoSpawnElixirSenseServers) {
             (vscode.workspace.workspaceFolders || []).forEach((workspaceFolder) => {
-                startElixirSenseServerForWorkspaceFolder(workspaceFolder, ctx, env);
+                startElixirSenseServerForWorkspaceFolder(workspaceFolder, ctx, env, projectPath);
             });
         }  else if ((vscode.workspace.workspaceFolders || []).length === 1) {
             startElixirSenseServerForWorkspaceFolder(vscode.workspace.workspaceFolders[0], ctx, env);
@@ -68,9 +69,12 @@ export function deactivate() {
     }
 }
 
-function startElixirSenseServerForWorkspaceFolder(workspaceFolder: vscode.WorkspaceFolder, ctx: vscode.ExtensionContext, env: any) {
-    const projectPath = workspaceFolder.uri.fsPath;
+function startElixirSenseServerForWorkspaceFolder(workspaceFolder: vscode.WorkspaceFolder, ctx: vscode.ExtensionContext, env: any, settingProjectPath = '') {
+    const projectPath = join(workspaceFolder.uri.fsPath, settingProjectPath);
     if (elixirSenseServers[projectPath] || !existsSync(join(projectPath, 'mix.exs'))) {
+        const warnmsg = `Could not find a Mix project in ${projectPath}. Elixir support disabled. `;
+        const hint = `If your Mix project is in a subfolder, change the elixir.projectPath setting accordingly.`;
+        vscode.window.showWarningMessage(warnmsg + hint);
         return;
     }
     let subscriptions;
