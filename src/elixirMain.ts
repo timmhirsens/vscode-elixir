@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
 import { configuration } from './configuration';
 import { ElixirAutocomplete } from './elixirAutocomplete';
 import { ElixirDefinitionProvider } from './elixirDefinitionProvider';
+import { ElixirDocumentSymbolProvider } from './elixirSymbolProvider';
 import { ElixirHoverProvider } from './elixirHoverProvider';
 import { ElixirSenseAutocompleteProvider } from './elixirSenseAutocompleteProvider';
 import { ElixirSenseClient } from './elixirSenseClient';
@@ -53,6 +54,11 @@ export function activate(ctx: vscode.ExtensionContext) {
         ctx.subscriptions.push(vscode.languages.registerHoverProvider(ELIXIR_MODE, new ElixirHoverProvider(this.elixirServer)));
         ctx.subscriptions.push(vscode.languages.setLanguageConfiguration('elixir', configuration));
     }
+
+    ctx.subscriptions.push(vscode.languages.registerDocumentSymbolProvider(
+        { language: "elixir" }, new ElixirDocumentSymbolProvider()
+    ));
+
     const disposables = [];
     if (useElixirSense) {
         disposables.push(vscode.commands.registerCommand('extension.selectElixirSenseWorkspaceFolder',
