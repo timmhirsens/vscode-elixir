@@ -40,40 +40,40 @@ To get compile warning / errors and test failures in your problem view, add the 
 
 ```json
 {
-  "version": "0.1.0",
-  "command": "mix",
-  "isShellCommand": true,
-  "showOutput": "always",
-  "suppressTaskName": true,
+  "version": "2.0.0",
   "tasks": [
     {
-      "taskName": "build",
-      "args": [
-        "compile"
-      ],
+      "label": "build",
+      "type": "shell",
+      "command": "mix compile",
       "problemMatcher": [
         "$mixCompileError",
         "$mixCompileWarning"
       ],
-      "isBuildCommand": true
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
     },
     {
-      "taskName": "test",
-      "args": [
-        "test"
-      ],
+      "label": "test",
+      "type": "shell",
+      "command": "mix test",
       "problemMatcher": [
         "$mixCompileError",
         "$mixCompileWarning",
         "$mixTestFailure"
       ],
-      "isTestCommand": true
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      }
     }
   ]
 }
 ```
 
-See https://go.microsoft.com/fwlink/?LinkId=733558 for the documentation about the tasks.json format
+See https://code.visualstudio.com/docs/editor/tasks for the documentation about tasks or https://code.visualstudio.com/docs/editor/tasks-appendix#_schema-for-tasksjson for the documentation about the tasks.json schema.
 
 ### Emmet completions
 
