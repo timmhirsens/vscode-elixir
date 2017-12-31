@@ -2,8 +2,7 @@ import * as vscode from 'vscode';
 import { ElixirServer } from './elixirServer';
 
 export class ElixirHoverProvider implements vscode.HoverProvider {
-
-  constructor(private server: ElixirServer) { }
+  constructor(private server: ElixirServer) {}
 
   provideHover(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken): Thenable<vscode.Hover> {
     return new Promise((resolve, reject) => {
@@ -15,7 +14,6 @@ export class ElixirHoverProvider implements vscode.HoverProvider {
           reject();
         }
       });
-
     });
   }
 }
