@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
 import { configuration } from './configuration';
 import { ElixirAutocomplete } from './elixirAutocomplete';
 import { ElixirDefinitionProvider } from './elixirDefinitionProvider';
+import { ElixirFormatterProvider } from './elixirFormatter';
 import { ElixirDocumentSymbolProvider } from './elixirSymbolProvider';
 import { ElixirHoverProvider } from './elixirHoverProvider';
 import { ElixirSenseAutocompleteProvider } from './elixirSenseAutocompleteProvider';
@@ -52,6 +53,7 @@ export function activate(ctx: vscode.ExtensionContext) {
         ctx.subscriptions.push(vscode.languages.registerCompletionItemProvider(ELIXIR_MODE, new ElixirAutocomplete(this.elixirServer), '.'));
         ctx.subscriptions.push(vscode.languages.registerDefinitionProvider(ELIXIR_MODE, new ElixirDefinitionProvider(this.elixirServer)));
         ctx.subscriptions.push(vscode.languages.registerHoverProvider(ELIXIR_MODE, new ElixirHoverProvider(this.elixirServer)));
+        ctx.subscriptions.push(vscode.languages.registerDocumentFormattingEditProvider(ELIXIR_MODE, new ElixirFormatterProvider()))
         ctx.subscriptions.push(vscode.languages.setLanguageConfiguration('elixir', configuration));
     }
 
@@ -91,11 +93,13 @@ function startElixirSenseServerForWorkspaceFolder(workspaceFolder: vscode.Worksp
         const definitionProvider = new ElixirSenseDefinitionProvider(elixirSenseClient);
         const hoverProvider = new ElixirSenseHoverProvider(elixirSenseClient);
         const signatureHelpProvider = new ElixirSenseSignatureHelpProvider(elixirSenseClient);
+        const elixirFormatterProvider = new ElixirFormatterProvider();
         subscriptions = [
             vscode.languages.registerCompletionItemProvider(ELIXIR_MODE, autoCompleteProvider, '.', '{', '@'),
             vscode.languages.registerDefinitionProvider(ELIXIR_MODE, definitionProvider),
             vscode.languages.registerHoverProvider(ELIXIR_MODE, hoverProvider),
             vscode.languages.registerSignatureHelpProvider(ELIXIR_MODE, signatureHelpProvider, '(', ','),
+            vscode.languages.registerDocumentFormattingEditProvider(ELIXIR_MODE, elixirFormatterProvider),
             vscode.languages.setLanguageConfiguration('elixir', configuration)
         ];
         ctx.subscriptions.concat(subscriptions);
