@@ -14,6 +14,7 @@ import { ElixirSenseHoverProvider } from './elixirSenseHoverProvider';
 import { ElixirSenseServerProcess } from './elixirSenseServerProcess';
 import { ElixirSenseSignatureHelpProvider } from './elixirSenseSignatureHelpProvider';
 import { ElixirServer } from './elixirServer';
+import { ReferenceProvider } from './ReferenceProvider';
 
 const ELIXIR_MODE: vscode.DocumentFilter = { language: 'elixir', scheme: 'file' };
 // tslint:disable-next-line:prefer-const
@@ -67,6 +68,10 @@ export function activate(ctx: vscode.ExtensionContext) {
             () => selectElixirSenseWorkspaceFolder(ctx, env)));
     }
     ctx.subscriptions.push(...disposables);
+    ctx.subscriptions.push(
+        vscode.languages.registerReferenceProvider(
+            "elixir", new ReferenceProvider()));
+
 }
 
 export function deactivate() {
