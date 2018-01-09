@@ -48,7 +48,7 @@ export function activate(ctx: vscode.ExtensionContext) {
       }
     });
   } else {
-    this.elixirServer = new ElixirServer();
+    this.elixirServer = new ElixirServer(elixirSetting.command);
     this.elixirServer.start();
     ctx.subscriptions.push(vscode.languages.registerCompletionItemProvider(ELIXIR_MODE, new ElixirAutocomplete(this.elixirServer), '.'));
     ctx.subscriptions.push(vscode.languages.registerDefinitionProvider(ELIXIR_MODE, new ElixirDefinitionProvider(this.elixirServer)));
@@ -83,7 +83,8 @@ function startElixirSenseServerForWorkspaceFolder(workspaceFolder: vscode.Worksp
     return;
   }
   let subscriptions;
-  const elixirSenseServer = new ElixirSenseServerProcess(projectPath, (host, port, authToken) => {
+  const elixirSetting = vscode.workspace.getConfiguration('elixir');
+  const elixirSenseServer = new ElixirSenseServerProcess(elixirSetting.command, projectPath, (host, port, authToken) => {
     const elixirSenseClient = new ElixirSenseClient(host, port, authToken, env, projectPath);
     elixirSenseClients[projectPath] = elixirSenseClient;
     const autoCompleteProvider = new ElixirSenseAutocompleteProvider(elixirSenseClient);

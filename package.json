@@ -130,6 +130,11 @@
           "default": true,
           "description": "Automatically handle spawning of elixir-sense servers for each folder in the workspace"
         },
+        "elixir.command": {
+          "type": "string",
+          "default": "elixir",
+          "description": "Command to be run for launching the elixir_sense server providing intellisense features. Defaults to 'elixir'"
+        },
         "elixir.elixirEnv": {
           "type": "string",
           "default": "dev",
