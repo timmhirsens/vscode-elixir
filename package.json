@@ -21,9 +21,7 @@
   "homepage": "https://github.com/fr1zle/vscode-elixir",
   "categories": ["Languages"],
   "activationEvents": ["onLanguage:elixir"],
-  "emmet.syntaxProfiles": {
-    "HTML (Eex)": "html"
-  },
+  "emmet.includeLanguages": { "html-eex": "html" },
   "contributes": {
     "languages": [
       {
@@ -33,13 +31,13 @@
         "configuration": "./elixir.configuration.json"
       },
       {
-        "id": "Eex",
-        "aliases": ["Eex", "eex"],
+        "id": "eex",
+        "aliases": ["Embedded Elixir", "eex"],
         "extensions": [".eex"]
       },
       {
-        "id": "HTML (Eex)",
-        "aliases": ["HTML (Eex)"],
+        "id": "html-eex",
+        "aliases": ["HTML (Embedded Elixir)"],
         "extensions": [".html.eex"],
         "configuration": "./html.eex.configuration.json"
       }
@@ -51,14 +49,14 @@
         "path": "./syntaxes/elixir.json"
       },
       {
-        "language": "Eex",
+        "language": "eex",
         "scopeName": "text.elixir",
         "path": "./syntaxes/eex.json"
       },
       {
-        "language": "HTML (Eex)",
+        "language": "html-eex",
         "scopeName": "text.html.elixir",
-        "path": "./syntaxes/html (eex).json"
+        "path": "./syntaxes/html_eex.json"
       }
     ],
     "snippets": [
