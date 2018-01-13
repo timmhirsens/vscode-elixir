@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { ElixirSymbol, ElixirSymbolExtractor } from './elixirSymbolExtractor';
 
-export class ElixirDocumentSymbolProvider implements DocumentSymbolProvider {
+export class ElixirDocumentSymbolProvider implements vscode.DocumentSymbolProvider {
     provideDocumentSymbols(
         document: vscode.TextDocument,
         token: vscode.CancellationToken): Thenable<vscode.SymbolInformation[]> {
