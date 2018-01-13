@@ -57,8 +57,8 @@ export function activate(ctx: vscode.ExtensionContext) {
     ctx.subscriptions.push(vscode.languages.setLanguageConfiguration('elixir', configuration));
   }
 
-  ctx.subscriptions.push(vscode.languages.registerDocumentSymbolProvider({ language: 'elixir' }, new ElixirDocumentSymbolProvider()));
-
+  ctx.subscriptions.push(vscode.languages.registerDocumentSymbolProvider(ELIXIR_MODE, new ElixirDocumentSymbolProvider()));
+  
   const disposables = [];
   if (useElixirSense) {
     disposables.push(vscode.commands.registerCommand('extension.selectElixirSenseWorkspaceFolder', () => selectElixirSenseWorkspaceFolder(ctx, env)));
