@@ -20,8 +20,8 @@ let elixirServer: ElixirServer;
 // Elixir-Sense
 let useElixirSense: boolean;
 let autoSpawnElixirSenseServers: boolean;
-const elixirSenseServers: {[path: string]: {server: ElixirSenseServerProcess, subscriptions: () => vscode.Disposable[]}} = {};
-const elixirSenseClients: {[path: string]: ElixirSenseClient} = {};
+const elixirSenseServers: { [path: string]: { server: ElixirSenseServerProcess, subscriptions: () => vscode.Disposable[] } } = {};
+const elixirSenseClients: { [path: string]: ElixirSenseClient } = {};
 
 export function activate(ctx: vscode.ExtensionContext) {
     const elixirSetting = vscode.workspace.getConfiguration('elixir');
@@ -37,7 +37,7 @@ export function activate(ctx: vscode.ExtensionContext) {
             (vscode.workspace.workspaceFolders || []).forEach((workspaceFolder) => {
                 startElixirSenseServerForWorkspaceFolder(workspaceFolder, ctx, env, projectPath);
             });
-        }  else if ((vscode.workspace.workspaceFolders || []).length === 1) {
+        } else if ((vscode.workspace.workspaceFolders || []).length === 1) {
             startElixirSenseServerForWorkspaceFolder(vscode.workspace.workspaceFolders[0], ctx, env);
         }
         vscode.workspace.onDidChangeWorkspaceFolders((e) => {
@@ -55,9 +55,7 @@ export function activate(ctx: vscode.ExtensionContext) {
         ctx.subscriptions.push(vscode.languages.setLanguageConfiguration('elixir', configuration));
     }
 
-    ctx.subscriptions.push(vscode.languages.registerDocumentSymbolProvider(
-        { language: "elixir" }, new ElixirDocumentSymbolProvider()
-    ));
+    ctx.subscriptions.push(vscode.languages.registerDocumentSymbolProvider(ELIXIR_MODE, new ElixirDocumentSymbolProvider()));
 
     const disposables = [];
     if (useElixirSense) {
@@ -142,20 +140,20 @@ function selectElixirSenseWorkspaceFolder(ctx: vscode.ExtensionContext, env: any
         matchOnDescription: false,
         matchOnDetail: false,
         placeHolder: 'Choose workspace folder...',
-      } as vscode.QuickPickOptions;
+    } as vscode.QuickPickOptions;
     vscode.window.showQuickPick(items, options).then(
         (item: vscode.QuickPickItem) => {
-          if (!item) {
-            return;
-          }
-          const workspaceFolder = (vscode.workspace.workspaceFolders || [])
-            .find((workspaceFolderTmp) => workspaceFolderTmp.uri.fsPath === item.description);
-          if (!workspaceFolder) {
-            return;
-          }
-          stopAllElixirSenseServers();
-          startElixirSenseServerForWorkspaceFolder(workspaceFolder, ctx, env);
+            if (!item) {
+                return;
+            }
+            const workspaceFolder = (vscode.workspace.workspaceFolders || [])
+                .find((workspaceFolderTmp) => workspaceFolderTmp.uri.fsPath === item.description);
+            if (!workspaceFolder) {
+                return;
+            }
+            stopAllElixirSenseServers();
+            startElixirSenseServerForWorkspaceFolder(workspaceFolder, ctx, env);
         },
         // tslint:disable-next-line:no-empty
-        (reason: any) => {});
+        (reason: any) => { });
 }
