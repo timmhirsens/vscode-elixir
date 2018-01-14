@@ -51,8 +51,8 @@ export class ElixirSymbolExtractor {
         return lines.join("\n");
     }
 
-    isValidToken(token: string) {
-        return /^[a-z0-9_\?\(\)\,\.\{\}!\=\:"]+$/i.test(token);
+    isValidChar(char: string) {
+        return /^[a-z0-9_\?\(\)\,\.\{\}!\=\:"]+$/i.test(char);
     }
 
     tokenize(src: string) {
@@ -67,12 +67,12 @@ export class ElixirSymbolExtractor {
 
     nextToken(source: string) {
         let token = '';
-        while (!this.isValidToken(source.charAt(this.i))) {
+        while (!this.isValidChar(source.charAt(this.i))) {
             this.i++;
             if (source.charAt(this.i - 1) == '\n') this.line++;
             if (this.i > source.length) break;
         }
-        while (this.isValidToken(source.charAt(this.i))) {
+        while (this.isValidChar(source.charAt(this.i))) {
             token += source.charAt(this.i);
             this.i++;
             if (this.i > source.length) break;

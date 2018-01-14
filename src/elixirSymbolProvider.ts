@@ -14,7 +14,7 @@ export class ElixirDocumentSymbolProvider implements vscode.DocumentSymbolProvid
                 for (let symbol of elixirSymbols) {
                     switch (symbol[0]) {
                         case ElixirSymbol.FUNCTION: {
-                            let [_, name, arity, line] = symbol;
+                            let [, name, arity, line] = symbol;
                             symbols.push({
                                 name: name + '/' + arity,
                                 kind: vscode.SymbolKind.Function,
@@ -23,31 +23,31 @@ export class ElixirDocumentSymbolProvider implements vscode.DocumentSymbolProvid
                             break;
                         }
                         case ElixirSymbol.MACRO: {
-                            let [_, name, arity, line] = symbol
+                            let [, name, arity, line] = symbol;
                             symbols.push({
                                 name: name + '/' + arity,
                                 kind: vscode.SymbolKind.Function,
                                 location: new vscode.Location(document.uri, new vscode.Position(line - 1, 1))
                             });
-                            break
+                            break;
                         }
                         case ElixirSymbol.MODULE: {
-                            let [_, name, line] = symbol
+                            let [, name, line] = symbol;
                             symbols.push({
                                 name: name,
                                 kind: vscode.SymbolKind.Class,
                                 location: new vscode.Location(document.uri, new vscode.Position(line - 1, 1))
                             });
-                            break
+                            break;
                         }
                         case ElixirSymbol.VALUE: {
-                            let [_, name, line] = symbol
+                            let [, name, line] = symbol;
                             symbols.push({
                                 name: name,
                                 kind: vscode.SymbolKind.Field,
                                 location: new vscode.Location(document.uri, new vscode.Position(line - 1, 1))
                             });
-                            break
+                            break;
                         }
                         default:
                     }

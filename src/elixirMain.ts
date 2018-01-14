@@ -6,6 +6,7 @@ import { ElixirAutocomplete } from './elixirAutocomplete';
 import { ElixirDefinitionProvider } from './elixirDefinitionProvider';
 import { ElixirFormatterProvider } from './elixirFormatter';
 import { ElixirHoverProvider } from './elixirHoverProvider';
+import { ElixirReferenceProvider } from './elixirReferenceProvider';
 import { ElixirSenseAutocompleteProvider } from './elixirSenseAutocompleteProvider';
 import { ElixirSenseClient } from './elixirSenseClient';
 import { ElixirSenseDefinitionProvider } from './elixirSenseDefinitionProvider';
@@ -58,7 +59,8 @@ export function activate(ctx: vscode.ExtensionContext) {
   }
 
   ctx.subscriptions.push(vscode.languages.registerDocumentSymbolProvider(ELIXIR_MODE, new ElixirDocumentSymbolProvider()));
-  
+  ctx.subscriptions.push(vscode.languages.registerReferenceProvider(ELIXIR_MODE, new ElixirReferenceProvider()));
+
   const disposables = [];
   if (useElixirSense) {
     disposables.push(vscode.commands.registerCommand('extension.selectElixirSenseWorkspaceFolder', () => selectElixirSenseWorkspaceFolder(ctx, env)));
