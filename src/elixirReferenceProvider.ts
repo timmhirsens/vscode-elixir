@@ -66,9 +66,10 @@ export class ElixirReferenceProvider implements vscode.ReferenceProvider {
 
     public provideReferences(document: vscode.TextDocument, position: vscode.Position, options: { includeDeclaration: boolean }, token: vscode.CancellationToken): Thenable<vscode.Location[]> {
         const dir = vscode.workspace.getWorkspaceFolder(document.uri);
+        if (dir == undefined)
+            vscode.window.showWarningMessage('No workspace is opened. Finding references needs a workspace with a mix project.');
         if (dir.uri.path) {
             //TODO: check if a mix project
-            console.log("workDir: " + dir.uri.path);
             const lineNo = position.line;
             const line = document.lineAt(lineNo).text;
             const src = document.getText();
@@ -99,7 +100,6 @@ export class ElixirReferenceProvider implements vscode.ReferenceProvider {
                         }
                     }
                 })
-
             });
         }
     }
