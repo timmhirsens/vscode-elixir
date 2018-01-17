@@ -148,10 +148,12 @@ export class ElixirSymbolExtractor {
             const bracketEnd = sig.indexOf(")");
             const args = sig.substring(bracketStart, bracketEnd > -1 ? bracketEnd + 1 : sig.length);
             let arity;
+            console.log(args);
             if (args.includes(','))
                 arity = args.split(',').length;
-            else
-                arity = 1;
+            else if (args == '()')
+                arity = 0;
+            else arity = 1;
             const name = sig.substring(0, bracketStart);
             return [name, arity];
         } else
@@ -169,18 +171,18 @@ export class ElixirSymbolExtractor {
         this.symbols.push([type, name, arity, line]);
     }
 
-    parseModules(m) {
-        const x = m.indexOf('{');
-        const y = m.indexOf('}');
+    parseModules(modules) {
+        const x = modules.indexOf('{');
+        const y = modules.indexOf('}');
         if (x >= 0 && y >= 0) {
-            const foo = m.substring(0, m.indexOf('.'));
-            const z = m.substring(x + 1, y);
+            const foo = modules.substring(0, modules.indexOf('.'));
+            const z = modules.substring(x + 1, y);
             const names = z.split(',');
             for (var j = 0; j < names.length; j++) {
                 names[j] = foo + '.' + names[j];
             }
             return names;
         }
-        return [].push(m);
+        return [].push(modules);
     }
 }
