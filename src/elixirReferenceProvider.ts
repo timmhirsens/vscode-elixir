@@ -87,7 +87,7 @@ export class ElixirReferenceProvider implements vscode.ReferenceProvider {
                     }
                     else {
                         const lines = stdout.split('\n');
-                        if (lines.length > 0) {
+                        if (lines.length > 1) {
                             let references = [];
                             for (let aline of lines) {
                                 let [file, lineNumber, name] = aline.split(':');
@@ -96,7 +96,7 @@ export class ElixirReferenceProvider implements vscode.ReferenceProvider {
                             }
                             resolve(references);
                         } else {
-                            reject('No output from `mix xref`');
+                            resolve([]);
                         }
                     }
                 })

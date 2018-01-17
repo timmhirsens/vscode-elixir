@@ -20,7 +20,7 @@ export class ElixirSymbolExtractor {
         this.line = 1;
         let tokens = this.tokenize(this.eraseComments(src));
         let groups = this.processTokens(tokens);
-        let foo = this.processGroups(groups);
+        this.processGroups(groups);
         return this.symbols;
     }
 
@@ -85,12 +85,12 @@ export class ElixirSymbolExtractor {
         let current = [];
         for (let t of tokens) {
             const [token, line] = t;
-            if (this.keywords.indexOf(token) > 0) {
+            if (this.keywords.indexOf(token) > -1) {
                 if (current.length > 0) {
                     groups.push(current);
                     current = [];
                 }
-                if (this.tracked.indexOf(token) > 0)
+                if (this.tracked.indexOf(token) > -1)
                     current.push([token, line]);
             } else {
                 current.push([token, line]);
@@ -148,7 +148,6 @@ export class ElixirSymbolExtractor {
             const bracketEnd = sig.indexOf(")");
             const args = sig.substring(bracketStart, bracketEnd > -1 ? bracketEnd + 1 : sig.length);
             let arity;
-            console.log(args);
             if (args.includes(','))
                 arity = args.split(',').length;
             else if (args == '()')
