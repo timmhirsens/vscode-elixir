@@ -78,6 +78,7 @@ export class ElixirReferenceProvider implements vscode.ReferenceProvider {
 
             return new Promise((resolve, reject) => {
                 const cmd = `mix xref callers ${args}`;
+                console.log(cmd)
                 const cwd = vscode.workspace.rootPath ? vscode.workspace.rootPath : '';
                 cp.exec(cmd, { cwd }, (error, stdout, stderr) => {
                     if (error !== null) {
