@@ -4,7 +4,6 @@ import * as vscode from 'vscode';
 
 export class ElixirServer {
   p: cp.ChildProcess;
-  command: string;
   args: string[];
   env: string;
   busy: boolean;
@@ -13,7 +12,7 @@ export class ElixirServer {
   lastRequestType: string;
   resultCallback: (result: string) => void;
 
-  constructor() {
+  constructor(private command: string) {
     const extensionPath: string = vscode.extensions.getExtension('mjmcloug.vscode-elixir').extensionPath;
     this.command = 'elixir';
     this.args = [path.join(extensionPath, 'alchemist-server/run.exs')];

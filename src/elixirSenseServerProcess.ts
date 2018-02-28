@@ -12,10 +12,8 @@ export class ElixirSenseServerProcess {
   ready;
   proc;
   args;
-  command;
 
-  constructor(public projectPath: string, public onTcpServerReady) {
-    this.command = 'elixir';
+  constructor(private command: string, public projectPath: string, public onTcpServerReady) {
     const extensionPath = vscode.extensions.getExtension('mjmcloug.vscode-elixir').extensionPath;
     this.args = [path.join(extensionPath, 'elixir_sense/run.exs')];
     this.proc = null;
