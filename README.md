@@ -1,9 +1,9 @@
 # Elixir Support for Visual Studio Code
 
-[![Download](https://vsmarketplacebadge.apphb.com/version-short/mjmcloug.vscode-elixir.png)](https://marketplace.visualstudio.com/items?itemName=mjmcloug.vscode-elixir)
-[![Download](https://vsmarketplacebadge.apphb.com/installs-short/mjmcloug.vscode-elixir.png)](https://marketplace.visualstudio.com/items?itemName=mjmcloug.vscode-elixir)
-[![Gitter](https://img.shields.io/gitter/room/vscode-elixir/Lobby.png)](https://gitter.im/vscode-elixir/Lobby)
-[![Build Status](https://semaphoreci.com/api/v1/fr1zle/vscode-elixir/branches/master/shields_badge.png)](https://semaphoreci.com/fr1zle/vscode-elixir)
+[![Download](https://vsmarketplacebadge.apphb.com/version-short/mjmcloug.vscode-elixir.svg)](https://marketplace.visualstudio.com/items?itemName=mjmcloug.vscode-elixir)
+[![Download](https://vsmarketplacebadge.apphb.com/installs-short/mjmcloug.vscode-elixir.svg)](https://marketplace.visualstudio.com/items?itemName=mjmcloug.vscode-elixir)
+[![Gitter](https://img.shields.io/gitter/room/vscode-elixir/Lobby.svg)](https://gitter.im/vscode-elixir/Lobby)
+[![Build Status](https://semaphoreci.com/api/v1/fr1zle/vscode-elixir/branches/master/shields_badge.svg)](https://semaphoreci.com/fr1zle/vscode-elixir)
 
 Read the [CHANGELOG](https://github.com/fr1zle/vscode-elixir/blob/master/CHANGELOG.md) to see what has changed in this extension over time.
 
