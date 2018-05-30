@@ -37,7 +37,7 @@
   },
   "defd": {
     "prefix": "defdelegate",
-    "body": "defdelegate $1 to: $0",
+    "body": "defdelegate ${1:function}($2), to: $0",
     "description": "defdelegate",
     "scope": "source.elixir"
   },
