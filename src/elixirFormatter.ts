@@ -30,7 +30,7 @@ export class ElixirFormatterProvider implements vscode.DocumentFormattingEditPro
       p.stdout.on('data', data => stdout += data);
       p.stderr.on('data', data => stderr += data);
       // Abort the formatting if the formatter process errors.
-      p.on('error', err => { return reject(); });
+      p.on('error', err => reject());
       // Replace the editor text with formatted code once the formatter finishes. We return the
       // complete file content in the edit. VS Code will calculate the minimall edits to be applied.
       p.on('close', code => {
