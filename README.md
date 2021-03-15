@@ -1,3 +1,5 @@
+# This project is no longer maintained. Please checkout https://marketplace.visualstudio.com/items?itemName=JakeBecker.elixir-ls as an alternative
+
 # Elixir Support for Visual Studio Code
 
 [![Download](https://vsmarketplacebadge.apphb.com/version-short/mjmcloug.vscode-elixir.png)](https://marketplace.visualstudio.com/items?itemName=mjmcloug.vscode-elixir)
