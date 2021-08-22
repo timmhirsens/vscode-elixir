@@ -1,6 +1,6 @@
 {
   "fileTypes": ["eex"],
-  "name": "EEx",
+  "name": "eex",
   "patterns": [
     {
       "begin": "<%+#",
