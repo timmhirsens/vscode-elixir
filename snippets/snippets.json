@@ -119,6 +119,12 @@
     "description": "doc",
     "scope": "source.elixir"
   },
+  "doctest": {
+    "prefix": "@doctest",
+    "body": "@doc \"\"\"\n$0\n\n## Examples\n\n\t\tiex>\n\n\"\"\"",
+    "description": "doctest",
+    "scope": "source.elixir"
+  },
   "i": {
     "prefix": "i",
     "body": "inspect($0)",
