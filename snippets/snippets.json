@@ -17,6 +17,12 @@
     "description": "def",
     "scope": "source.elixir"
   },
+  "def1": {
+    "prefix": "def1",
+    "body": "def $1, do: $2",
+    "description": "one line def",
+    "scope": "source.elixir"
+  },
   "test": {
     "prefix": "test",
     "body": "test $1 do\n\t$0\nend",
@@ -93,6 +99,12 @@
     "prefix": "defp",
     "body": "defp $1 do\n\t$0\nend",
     "description": "defp",
+    "scope": "source.elixir"
+  },
+  "defp1": {
+    "prefix": "defp1",
+    "body": "defp $1, do: $2",
+    "description": "one line defp",
     "scope": "source.elixir"
   },
   "defpro": {
