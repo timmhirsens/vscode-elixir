@@ -4,8 +4,10 @@ import * as vscode from 'vscode';
 import { configuration } from './configuration';
 import { ElixirAutocomplete } from './elixirAutocomplete';
 import { ElixirDefinitionProvider } from './elixirDefinitionProvider';
+import { ElixirDocumentSymbolProvider } from './elixirDocumentSymbolProvider';
 import { ElixirFormatterProvider } from './elixirFormatter';
 import { ElixirHoverProvider } from './elixirHoverProvider';
+import { ElixirReferenceProvider } from './elixirReferenceProvider';
 import { ElixirSenseAutocompleteProvider } from './elixirSenseAutocompleteProvider';
 import { ElixirSenseClient } from './elixirSenseClient';
 import { ElixirSenseDefinitionProvider } from './elixirSenseDefinitionProvider';
@@ -13,7 +15,7 @@ import { ElixirSenseHoverProvider } from './elixirSenseHoverProvider';
 import { ElixirSenseServerProcess } from './elixirSenseServerProcess';
 import { ElixirSenseSignatureHelpProvider } from './elixirSenseSignatureHelpProvider';
 import { ElixirServer } from './elixirServer';
-import { ElixirDocumentSymbolProvider } from './elixirSymbolProvider';
+import { ElixirWorkspaceSymbolProvider } from './elixirWorkspaceSymbolProvider';
 
 const ELIXIR_MODE: vscode.DocumentFilter = { language: 'elixir', scheme: 'file' };
 // tslint:disable-next-line:prefer-const
@@ -57,7 +59,9 @@ export function activate(ctx: vscode.ExtensionContext) {
     ctx.subscriptions.push(vscode.languages.setLanguageConfiguration('elixir', configuration));
   }
 
-  ctx.subscriptions.push(vscode.languages.registerDocumentSymbolProvider({ language: 'elixir' }, new ElixirDocumentSymbolProvider()));
+  ctx.subscriptions.push(vscode.languages.registerDocumentSymbolProvider(ELIXIR_MODE, new ElixirDocumentSymbolProvider()));
+  ctx.subscriptions.push(vscode.languages.registerWorkspaceSymbolProvider(new ElixirWorkspaceSymbolProvider()));
+  ctx.subscriptions.push(vscode.languages.registerReferenceProvider(ELIXIR_MODE, new ElixirReferenceProvider()));
 
   const disposables = [];
   if (useElixirSense) {
